@@ -4,8 +4,8 @@ import Navbar from '../components/Navbar';
 
 export default function About() {
   const team = [
-    { name: "M. AFFAN BAIG", role: "Hardware & Systems Integration" },
-    { name: "HAMMAD HASHMI", role: "Backend & Web Architecture" },
+    { name: "M. AFFAN BAIG", role: "Backend & Hardware Integration" },
+    { name: "HAMMAD HASHMI", role: "Documentation & Web Architecture" },
     { name: "SUNDAS FARMAN", role: "App Development" },
     { name: "PARAS BAI", role: "Research & Documentation" }
   ];
