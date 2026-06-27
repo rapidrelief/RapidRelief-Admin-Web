@@ -11,10 +11,7 @@ export default function Navbar() {
       padding: '1.5rem 1rem',
       flexWrap: 'wrap',
       gap: '1rem',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
+      position: 'relative',
       zIndex: 50
     }}>
       <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>

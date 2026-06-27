@@ -25,7 +25,7 @@ export default function About() {
 
       <div className="blob blob-1" style={{ background: 'rgba(16, 185, 129, 0.3)' }}></div>
 
-      <section style={{ padding: '8rem 2rem 4rem', textAlign: 'center', position: 'relative', zIndex: 10 }}>
+      <section style={{ padding: '4rem 2rem 4rem', textAlign: 'center', position: 'relative', zIndex: 10 }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: '800', marginBottom: '1.5rem' }}>The Team Behind <br/><span className="text-gradient">RapidRelief</span></h1>
           <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto', lineHeight: '1.8' }}>

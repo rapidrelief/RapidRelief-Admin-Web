@@ -91,8 +91,7 @@ export default function Landing() {
                   Save your app screenshot as <br/><code>public/assets/app-screen-1.png</code>
                 </div>
               </motion.div>
-              
-              <motion.div initial={{ y: 100, opacity: 0 }} whileInView={{ y: 50, opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} style={{ marginTop: '3rem' }}>
+              <motion.div initial={{ y: 50, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
                 <img src="/assets/app-screen-2.png" alt="App Screen 2" style={{ width: '100%', maxWidth: '280px', height: 'auto', borderRadius: '24px', border: '8px solid #1E293B', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'block' }} onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }} />
                 <div style={{ display: 'none', width: '280px', height: '700px', background: 'rgba(255,255,255,0.05)', border: '2px dashed rgba(255,255,255,0.2)', borderRadius: '24px', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>
                   Save your app screenshot as <br/><code>public/assets/app-screen-2.png</code>
