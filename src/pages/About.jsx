@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Smartphone, Radio, Cpu, Wifi, Monitor, ArrowRight } from 'lucide-react';
+import { Smartphone, Radio, Cpu, Wifi, Monitor, ArrowRight, Activity, Database, Network } from 'lucide-react';
 import Navbar from '../components/Navbar';
 
 export default function About() {
@@ -29,9 +29,9 @@ export default function About() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: '800', marginBottom: '1.5rem' }}>The Team Behind <br/><span className="text-gradient">RapidRelief</span></h1>
           <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto', lineHeight: '1.8' }}>
-            RapidRelief was developed as our Final Year Project (FYP) for <strong><a href="https://www.dsu.edu.pk/" target="_blank" rel="noopener noreferrer" style={{ color: '#60A5FA', textDecoration: 'none' }}>DHA Suffa University</a></strong>. 
+            RapidRelief: Flood Emergency and Rescue Support System was developed as our Final Year Project (FYP) for <strong><a href="https://www.dsu.edu.pk/" target="_blank" rel="noopener noreferrer" style={{ color: '#60A5FA', textDecoration: 'none' }}>DHA Suffa University</a></strong>. 
             We recognized the devastating impact of communication blackouts during Pakistan's historical floods 
-            and set out to engineer a reliable, independent ecosystem that could save lives when traditional grids fail.
+            and set out to engineer an offline-first, reliable ecosystem that could save lives when traditional grids fail.
           </p>
         </motion.div>
       </section>
@@ -54,6 +54,47 @@ export default function About() {
               <p style={{ color: '#34D399', fontSize: '0.9rem', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '1px' }}>{member.role}</p>
             </motion.div>
           ))}
+        </div>
+
+        <div style={{ marginTop: '4rem', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '2rem', color: '#fff' }}>Project Supervisors</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
+            <div className="glass-panel" style={{ background: 'rgba(30, 41, 59, 0.4)', minWidth: '250px', padding: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.2rem', color: '#60A5FA', marginBottom: '0.5rem' }}>Sir Adnan Alam</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Supervisor</p>
+            </div>
+            <div className="glass-panel" style={{ background: 'rgba(30, 41, 59, 0.4)', minWidth: '250px', padding: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.2rem', color: '#A78BFA', marginBottom: '0.5rem' }}>Sir Conrad D'Silva</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Co-Supervisor</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ padding: '4rem 2rem', maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: '800', marginBottom: '1rem', color: '#fff' }}>Key Research Innovations</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Core features engineered to overcome disaster communication constraints.</p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="glass-panel">
+            <Activity size={32} color="#EF4444" style={{ marginBottom: '1rem' }} />
+            <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem', color: '#fff' }}>Stagnation Detection</h3>
+            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>An algorithm that continuously monitors victim GPS movement patterns. If no significant movement is detected for 10 minutes in a known flood zone, it automatically triggers an SOS alert for incapacitated victims.</p>
+          </motion.div>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="glass-panel">
+            <Network size={32} color="#38BDF8" style={{ marginBottom: '1rem' }} />
+            <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem', color: '#fff' }}>Cascaded Network Failover</h3>
+            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>A dynamic multi-protocol stack that instantly switches the SOS broadcast channel from 4G/LTE to Long-Range LoRa radio, and finally to a Bluetooth Low Energy (BLE) relay mesh, ensuring no request is dropped.</p>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.4 }} className="glass-panel">
+            <Database size={32} color="#10B981" style={{ marginBottom: '1rem' }} />
+            <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem', color: '#fff' }}>Offline-First Architecture</h3>
+            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Treats online connectivity as an enhancement rather than a prerequisite. Employs a local store-and-forward mechanism to persist data durably on the device until intermittent connection is restored.</p>
+          </motion.div>
         </div>
       </section>
 
