@@ -83,17 +83,17 @@ export default function Landing() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '3rem', alignItems: 'center' }}>
             
             {/* Screenshots container */}
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', position: 'relative' }}>
               {/* Note to User: Place your screenshots in public/assets/ and name them app-screen-1.png and app-screen-2.png */}
               <motion.div initial={{ y: 50, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
-                <img src="/assets/app-screen-1.png" alt="App Screen 1" style={{ width: '280px', height: 'auto', borderRadius: '24px', border: '8px solid #1E293B', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'block' }} onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }} />
+                <img src="/assets/app-screen-1.png" alt="App Screen 1" style={{ width: '100%', maxWidth: '280px', height: 'auto', borderRadius: '24px', border: '8px solid #1E293B', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'block' }} onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }} />
                 <div style={{ display: 'none', width: '280px', height: '580px', background: 'rgba(255,255,255,0.05)', border: '2px dashed rgba(255,255,255,0.2)', borderRadius: '24px', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>
                   Save your app screenshot as <br/><code>public/assets/app-screen-1.png</code>
                 </div>
               </motion.div>
               
               <motion.div initial={{ y: 100, opacity: 0 }} whileInView={{ y: 50, opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} style={{ marginTop: '3rem' }}>
-                <img src="/assets/app-screen-2.png" alt="App Screen 2" style={{ width: '280px', height: 'auto', borderRadius: '24px', border: '8px solid #1E293B', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'block' }} onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }} />
+                <img src="/assets/app-screen-2.png" alt="App Screen 2" style={{ width: '100%', maxWidth: '280px', height: 'auto', borderRadius: '24px', border: '8px solid #1E293B', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', display: 'block' }} onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }} />
                 <div style={{ display: 'none', width: '280px', height: '700px', background: 'rgba(255,255,255,0.05)', border: '2px dashed rgba(255,255,255,0.2)', borderRadius: '24px', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>
                   Save your app screenshot as <br/><code>public/assets/app-screen-2.png</code>
                 </div>

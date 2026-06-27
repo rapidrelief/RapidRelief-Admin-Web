@@ -178,3 +178,20 @@ body {
 .nav-link:hover {
   color: var(--text-main);
 }
+
+.architecture-flow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .architecture-flow {
+    flex-direction: column;
+  }
+  .arch-arrow {
+    transform: rotate(90deg);
+    margin: 1rem 0;
+  }
+}

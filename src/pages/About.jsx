@@ -27,7 +27,7 @@ export default function About() {
 
       <section style={{ padding: '8rem 2rem 4rem', textAlign: 'center', position: 'relative', zIndex: 10 }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <h1 style={{ fontSize: '4rem', fontWeight: '800', marginBottom: '1.5rem' }}>The Team Behind <br/><span className="text-gradient">RapidRelief</span></h1>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', fontWeight: '800', marginBottom: '1.5rem' }}>The Team Behind <br/><span className="text-gradient">RapidRelief</span></h1>
           <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '800px', margin: '0 auto', lineHeight: '1.8' }}>
             RapidRelief was developed as our Final Year Project (FYP) for <strong><a href="https://www.dsu.edu.pk/" target="_blank" rel="noopener noreferrer" style={{ color: '#60A5FA', textDecoration: 'none' }}>DHA Suffa University</a></strong>. 
             We recognized the devastating impact of communication blackouts during Pakistan's historical floods 
@@ -63,7 +63,7 @@ export default function About() {
           <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>How an offline SOS signal travels from a victim to the command center.</p>
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
+        <div className="architecture-flow">
           {architectureSteps.map((step, idx) => (
             <React.Fragment key={idx}>
               <motion.div 
@@ -87,6 +87,7 @@ export default function About() {
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: (idx * 0.2) + 0.1, duration: 0.5 }}
+                  className="arch-arrow"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)' }}
                 >
                   <ArrowRight size={32} />
