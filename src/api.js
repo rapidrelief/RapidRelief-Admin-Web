@@ -186,5 +186,43 @@ export const api = {
     });
     if (!res.ok) throw new Error('Failed to complete SOS');
     return res.json();
+  },
+
+  async createSOS(data) {
+    const res = await fetch(`${API_BASE_URL}/api/sos/create`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to create SOS');
+    return res.json();
+  },
+
+  async getGlobalActiveSOS() {
+    const res = await fetch(`${API_BASE_URL}/api/sos/active`);
+    if (!res.ok) throw new Error('Failed to fetch active SOS');
+    return res.json();
+  },
+
+  async getGlobalSOSHistory() {
+    const res = await fetch(`${API_BASE_URL}/api/sos/history`);
+    if (!res.ok) throw new Error('Failed to fetch SOS history');
+    return res.json();
+  },
+
+  async deleteSOS(id) {
+    const res = await fetch(`${API_BASE_URL}/api/sos/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error('Failed to delete SOS');
+    return res.json();
+  },
+
+  async bulkDeleteSOS(ids) {
+    const res = await fetch(`${API_BASE_URL}/api/sos/bulk_delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids })
+    });
+    if (!res.ok) throw new Error('Failed to bulk delete SOS');
+    return res.json();
   }
 };
