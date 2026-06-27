@@ -8,7 +8,9 @@ export default function Navbar() {
       display: 'flex', 
       justifyContent: 'space-between', 
       alignItems: 'center', 
-      padding: '1.5rem 2rem',
+      padding: '1.5rem 1rem',
+      flexWrap: 'wrap',
+      gap: '1rem',
       position: 'absolute',
       top: 0,
       left: 0,
@@ -20,10 +22,10 @@ export default function Navbar() {
         <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white' }}>RapidRelief</span>
       </Link>
       
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
         <Link to="/" className="nav-link">Home</Link>
         <Link to="/about" className="nav-link">About FYP</Link>
-        <div style={{ display: 'flex', gap: '1rem', marginLeft: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', marginLeft: '0.5rem', flexWrap: 'wrap' }}>
           <Link to="/login" style={{ 
             textDecoration: 'none', 
             color: 'white', 

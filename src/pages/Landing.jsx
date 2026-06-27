@@ -26,7 +26,7 @@ export default function Landing() {
             <span style={{ color: '#38bdf8', fontWeight: '500', fontSize: '0.9rem' }}>Disaster Management Reimagined</span>
           </div>
           
-          <h1 style={{ fontSize: '4.5rem', fontWeight: '800', lineHeight: '1.1', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', fontWeight: '800', lineHeight: '1.1', marginBottom: '1.5rem' }}>
             When the Grid Fails, <br/>
             <span className="text-gradient">We Don't.</span>
           </h1>
@@ -74,13 +74,13 @@ export default function Landing() {
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             style={{ textAlign: 'center', marginBottom: '4rem' }}
           >
-            <h2 style={{ fontSize: '3rem', fontWeight: '700', marginBottom: '1rem' }}>The Citizen App</h2>
+            <h2 style={{ fontSize: 'clamp(2rem, 6vw, 3rem)', fontWeight: '700', marginBottom: '1rem' }}>The Citizen App</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
               Designed for extreme conditions. Broadcast SOS signals and receive flood alerts completely offline using our proprietary Bluetooth-to-LoRa protocol.
             </p>
           </motion.div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '3rem', alignItems: 'center' }}>
             
             {/* Screenshots container */}
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', position: 'relative' }}>
@@ -140,11 +140,11 @@ export default function Landing() {
       <section style={{ padding: '8rem 2rem', position: 'relative', zIndex: 10 }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-            <h2 style={{ fontSize: '3rem', fontWeight: '700', marginBottom: '1rem' }}>Engineered for Extremes</h2>
+            <h2 style={{ fontSize: 'clamp(2rem, 6vw, 3rem)', fontWeight: '700', marginBottom: '1rem' }}>Engineered for Extremes</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>Traditional infrastructure fails when you need it most. We built an entirely parallel communication ecosystem.</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
             {[
               { icon: <Radio size={32} color="#60A5FA" />, title: "LoRa Mesh Network", desc: "Long Range, low power wireless radio frequency technology creates a miles-wide communication canopy." },
               { icon: <Globe size={32} color="#A78BFA" />, title: "Centralized Dashboard", desc: "Disaster Management Authorities get real-time topological mapping of all active hardware nodes and incoming SOS requests." },
@@ -178,7 +178,7 @@ export default function Landing() {
           viewport={{ once: true }}
           style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(79, 70, 229, 0.3)', borderRadius: '24px', padding: '4rem 2rem', boxShadow: '0 0 50px rgba(79, 70, 229, 0.1)' }}
         >
-          <h2 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '1.5rem' }}>Why Governments Must Adopt RapidRelief</h2>
+          <h2 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', fontWeight: '700', marginBottom: '1.5rem' }}>Why Governments Must Adopt RapidRelief</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', lineHeight: '1.8', marginBottom: '2.5rem', textAlign: 'left' }}>
             In the critical 72 hours following a catastrophic event (floods, earthquakes, hurricanes), 
             traditional cellular networks invariably collapse due to power loss or fiber damage. This information 
