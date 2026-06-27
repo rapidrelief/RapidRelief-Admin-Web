@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Shield, Radio, Activity, Globe, Smartphone, Download } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 export default function Landing() {
   return (
@@ -169,6 +170,30 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* IMPACT METRICS SECTION */}
+      <section style={{ padding: '4rem 2rem', background: 'rgba(15, 23, 42, 0.8)', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'relative', zIndex: 10 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', textAlign: 'center' }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <div style={{ fontSize: '3.5rem', fontWeight: '800', color: '#60A5FA', marginBottom: '0.5rem' }}>5km+</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: '500' }}>Radio Canopy Range<br/>(LoRa Band)</div>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
+              <div style={{ fontSize: '3.5rem', fontWeight: '800', color: '#34D399', marginBottom: '0.5rem' }}>10 sec</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: '500' }}>Cascaded Network<br/>Failover Time</div>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
+              <div style={{ fontSize: '3.5rem', fontWeight: '800', color: '#FBBF24', marginBottom: '0.5rem' }}>&lt; 5 sec</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: '500' }}>SOS Delivery<br/>Latency</div>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
+              <div style={{ fontSize: '3.5rem', fontWeight: '800', color: '#A78BFA', marginBottom: '0.5rem' }}>100%</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: '500' }}>Offline Capabilities<br/>& Independence</div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* GOVT / INVESTOR PITCH */}
       <section style={{ padding: '6rem 2rem', background: 'linear-gradient(to bottom, transparent, rgba(79, 70, 229, 0.1))', position: 'relative', zIndex: 10 }}>
         <motion.div 
@@ -200,32 +225,7 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* FOOTER */}
-      <footer style={{ padding: '4rem 2rem 2rem', background: 'rgba(15, 23, 42, 0.95)', borderTop: '1px solid rgba(255,255,255,0.05)', position: 'relative', zIndex: 10 }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            <Shield size={32} color="#60A5FA" />
-            <span style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'white' }}>RapidRelief</span>
-          </div>
-
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', maxWidth: '600px', marginBottom: '2rem', lineHeight: '1.6' }}>
-            A comprehensive, decentralized disaster management ecosystem. <br/>
-            Developed as a Final Year Project (FYP) at <a href="https://www.dsu.edu.pk/" target="_blank" rel="noopener noreferrer" style={{ color: '#60A5FA', textDecoration: 'none', fontWeight: '500' }}>DHA Suffa University</a>.
-          </p>
-
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: '1.5rem 3rem', borderRadius: '16px', marginBottom: '4rem' }}>
-            <h4 style={{ color: 'white', marginBottom: '0.5rem', fontSize: '1.2rem' }}>Get in Touch</h4>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>For inquiries, partnerships, or support:</p>
-            <a href="mailto:rapidrelief.org@gmail.com" style={{ color: '#34D399', textDecoration: 'none', fontSize: '1.1rem', fontWeight: 'bold' }}>rapidrelief.org@gmail.com</a>
-          </div>
-
-          <div style={{ width: '100%', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>&copy; {new Date().getFullYear()} RapidRelief. All rights reserved.</p>
-          </div>
-
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

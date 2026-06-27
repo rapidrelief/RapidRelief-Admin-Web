@@ -1,7 +1,32 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Smartphone, Radio, Cpu, Wifi, Monitor, ArrowRight, Activity, Database, Network } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Smartphone, Radio, Cpu, Wifi, Monitor, ArrowRight, Activity, Database, Network, ChevronDown } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+
+const FAQItem = ({ question, answer }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div style={{ marginBottom: '1rem', background: 'rgba(30, 41, 59, 0.4)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
+      <button 
+        onClick={() => setIsOpen(!isOpen)} 
+        style={{ width: '100%', padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'none', border: 'none', color: 'white', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', textAlign: 'left' }}
+      >
+        {question}
+        <ChevronDown style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+            <div style={{ padding: '0 1.5rem 1.5rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
+              {answer}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export default function About() {
   const team = [
@@ -139,6 +164,32 @@ export default function About() {
         </div>
       </section>
 
+      <section style={{ padding: '4rem 2rem 8rem', maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: '800', marginBottom: '1rem', color: '#fff' }}>Frequently Asked Questions</h2>
+        </div>
+        
+        <div>
+          <FAQItem 
+            question="How does the app work if the cellular grid collapses?" 
+            answer="It uses a cascaded failover system. First it tries internet, then LoRa radio via the nearest gateway, and finally a Bluetooth Low Energy (BLE) mesh relay to guarantee SOS delivery."
+          />
+          <FAQItem 
+            question="What is Stagnation Detection?" 
+            answer="A feature that continuously monitors a victim's GPS movement patterns. If no significant movement is detected for 10 consecutive minutes in a flood zone, it automatically triggers an SOS alert for incapacitated victims."
+          />
+          <FAQItem 
+            question="How long do the sensor batteries last?" 
+            answer="The ESP32 sensor nodes run on lithium-ion batteries with solar top-up capabilities, enabling months of autonomous operation in the field."
+          />
+          <FAQItem 
+            question="How can a government authority deploy this?" 
+            answer="Authorities can register via the dashboard to deploy hardware gateways and dispatch rescue teams using the real-time topological mapping of incoming SOS requests."
+          />
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }

@@ -7,6 +7,8 @@ import RegisterOrg from './pages/RegisterOrg';
 
 import Landing from './pages/Landing';
 import About from './pages/About';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/about" element={<About />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register-org" element={<RegisterOrg />} />
         <Route path="/super-admin" element={<SuperAdmin />} />
