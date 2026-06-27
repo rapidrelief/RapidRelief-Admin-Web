@@ -129,7 +129,7 @@ export default function Landing() {
               }}>
                 <Download /> Download APK
               </a>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '1rem' }}>Requires Android 8.0 or higher. Make sure to put RapidRelief.apk in public/assets/</p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '1rem' }}>Requires Android 8.0 or higher.</p>
             </motion.div>
 
           </div>
