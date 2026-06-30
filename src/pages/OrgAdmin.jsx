@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { collection, getDocs } from 'firebase/firestore';
 import { api } from '../api';
 import { MapContainer, TileLayer, Circle, Popup, useMap, Marker } from 'react-leaflet';
 import L from 'leaflet';
@@ -59,8 +60,10 @@ export default function OrgAdmin() {
   const [nodes, setNodes] = useState([]);
   const [globalZones, setGlobalZones] = useState([]);
   const [globalDevices, setGlobalDevices] = useState([]);
-  const [activeSOS, setActiveSOS] = useState([]);
+  const [activeSOSRaw, setActiveSOS] = useState([]);
   const [activeFloods, setActiveFloods] = useState([]);
+  
+  const activeSOS = activeSOSRaw.filter(s => s.source !== 'ZONE_FLOOD');
   
   const [mapCenter, setMapCenter] = useState([31.5204, 74.3587]);
   
@@ -72,6 +75,16 @@ export default function OrgAdmin() {
 
   const [mapViewMode, setMapViewMode] = useState('org'); // 'org' or 'global'
   const [mapItemMode, setMapItemMode] = useState('zones'); // 'zones' or 'rescuers'
+
+  // Users tab state
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [sosHistoryGlobal, setSosHistoryGlobal] = useState([]);
+  const [expandedUserId, setExpandedUserId] = useState(null);
+  const [orgName, setOrgName] = useState('My Organization');
+  const [orgProfile, setOrgProfile] = useState(null);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [userSearchTerm, setUserSearchTerm] = useState('');
 
   const getSignalPill = (state) => {
     const map = {
@@ -121,6 +134,7 @@ export default function OrgAdmin() {
   const fetchData = async (user = auth.currentUser) => {
     try {
       if (!user) return;
+      setIsRefreshing(true);
       
       // Fetch each endpoint individually and catch errors so one failure doesn't break everything
       const fetchSafe = async (apiCall, fallback) => {
@@ -132,7 +146,7 @@ export default function OrgAdmin() {
         }
       };
 
-      const [resData, zoneData, deviceData, nodeData, sosData, floodData, globalZData, globalDData] = await Promise.all([
+      const [resData, zoneData, deviceData, nodeData, sosData, floodData, globalZData, globalDData, historyData, usersSnapshot, profileData] = await Promise.all([
         fetchSafe(api.getOrgRescuers(user.uid), []),
         fetchSafe(api.getOrgZones(user.uid), []),
         fetchSafe(api.getOrgDevices(user.uid), []),
@@ -140,7 +154,10 @@ export default function OrgAdmin() {
         fetchSafe(api.getOrgActiveSOS(user.uid), []),
         fetchSafe(api.getOrgActiveFloods(user.uid), []),
         fetchSafe(api.getGlobalZones(user.uid), []),
-        fetchSafe(api.getGlobalDevices(user.uid), [])
+        fetchSafe(api.getGlobalDevices(user.uid), []),
+        fetchSafe(api.getGlobalSOSHistory(), {sos: []}),
+        fetchSafe(getDocs(collection(db, 'users')), {docs: []}),
+        fetchSafe(api.getProfile(user.uid), null)
       ]);
 
       setRescuers(resData);
@@ -151,6 +168,41 @@ export default function OrgAdmin() {
       setActiveFloods(floodData);
       setGlobalZones(globalZData);
       setGlobalDevices(globalDData);
+      setSosHistoryGlobal(historyData.sos || []);
+      
+      let foundProfile = false;
+      const currentUserDoc = usersSnapshot.docs?.find(doc => doc.id === user.uid || doc.data().uid === user.uid);
+      if (currentUserDoc) {
+        const data = currentUserDoc.data();
+        const profile = {
+          organization_name: data.organization_name,
+          organization_id: data.organization_id,
+          admin_name: data.fullName,
+          admin_email: data.email,
+          admin_phone: data.phone
+        };
+        setOrgProfile(profile);
+        if (data.organization_name) setOrgName(data.organization_name);
+        foundProfile = true;
+      }
+      
+      if (!foundProfile) {
+        if (profileData) {
+          setOrgProfile(profileData);
+          if (profileData.organization_name) setOrgName(profileData.organization_name);
+        } else if (zoneData.length > 0 && zoneData[0].organization_name) {
+          setOrgName(zoneData[0].organization_name);
+        }
+      }
+      
+      const usersList = [];
+      usersSnapshot.docs?.forEach(doc => {
+        const data = doc.data();
+        if (data.role === 'user') {
+          usersList.push({ id: doc.id, ...data });
+        }
+      });
+      setRegisteredUsers(usersList);
       
       if (zoneData.length > 0 && !selectedZoneForDevices) {
         setSelectedZoneForDevices(zoneData[0].id);
@@ -158,8 +210,10 @@ export default function OrgAdmin() {
     } catch (err) {
       console.error(err);
       setInfraMsg(`Error fetching data: ${err.message}. If you recently recreated your account, please try logging out and logging back in.`);
+    } finally {
+      setIsRefreshing(false);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const getSosZoneName = (zoneId) => {
@@ -310,13 +364,21 @@ export default function OrgAdmin() {
           <h1 className="title">Organization Portal</h1>
           <p style={{ color: 'var(--text-muted)' }}>Manage Rescuers, Zones, and Sensors</p>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <button className="btn-primary" onClick={handleLogout} style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#FCA5A5' }}>
-            Logout
-          </button>
-          <button className="btn-primary" onClick={() => fetchData()} style={{ background: 'rgba(56, 189, 248, 0.2)', color: '#bae6fd' }}>
-            Refresh Data
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn-primary" onClick={handleLogout} style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#FCA5A5' }}>
+              Logout
+            </button>
+            <button className="btn-primary" onClick={() => fetchData()} disabled={isRefreshing} style={{ background: 'rgba(56, 189, 248, 0.2)', color: '#bae6fd', opacity: isRefreshing ? 0.7 : 1, cursor: isRefreshing ? 'wait' : 'pointer' }}>
+              {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+            </button>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+            <span style={{ color: '#a5b4fc', fontWeight: 'bold', fontSize: '1.1rem' }}>{orgName}</span>
+            <button onClick={() => setShowSettingsModal(true)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Organization Settings">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -339,6 +401,12 @@ export default function OrgAdmin() {
           style={{ background: 'none', border: 'none', color: activeTab === 'infrastructure' ? '#a5b4fc' : 'var(--text-muted)', fontSize: '1rem', cursor: 'pointer', fontWeight: activeTab === 'infrastructure' ? 'bold' : 'normal' }}
         >
           Infrastructure (IoT)
+        </button>
+        <button 
+          onClick={() => setActiveTab('users')} 
+          style={{ background: 'none', border: 'none', color: activeTab === 'users' ? '#a5b4fc' : 'var(--text-muted)', fontSize: '1rem', cursor: 'pointer', fontWeight: activeTab === 'users' ? 'bold' : 'normal' }}
+        >
+          Users
         </button>
       </div>
 
@@ -1210,6 +1278,180 @@ const char* LORA_NODE_SECRET = "${loraSecret}";`}
         </div>
       )}
 
+      {/* USERS TAB */}
+      {activeTab === 'users' && (
+        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          
+          {/* USERS IN NEED OF HELP BANNER */}
+          <div style={{ padding: '1rem 1.5rem', borderRadius: '8px', background: activeSOS.length > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.1)', border: `1px solid ${activeSOS.length > 0 ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: activeSOS.length > 0 ? '#EF4444' : '#10B981', animation: activeSOS.length > 0 ? 'pulse 1.5s infinite' : 'none', boxShadow: activeSOS.length > 0 ? '0 0 10px rgba(239,68,68,0.8)' : 'none' }}></div>
+              <h3 style={{ color: activeSOS.length > 0 ? '#FCA5A5' : '#6EE7B7', margin: 0, fontSize: '1.2rem' }}>
+                {activeSOS.length > 0 ? 'Users in Need of Help / Active SOS' : 'All Users Are Currently Safe'}
+              </h3>
+            </div>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: activeSOS.length > 0 ? '#EF4444' : '#10B981', textShadow: activeSOS.length > 0 ? '0 0 10px rgba(239,68,68,0.5)' : 'none' }}>
+              {activeSOS.length}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+            <h2 style={{ color: '#fff', margin: 0 }}>
+              Users Detail <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 'normal', marginLeft: '0.5rem' }}>({registeredUsers.length} Total)</span>
+            </h2>
+            <input 
+              type="text" 
+              placeholder="Search users by name or phone..."
+              value={userSearchTerm}
+              onChange={(e) => setUserSearchTerm(e.target.value)}
+              style={{ width: '300px', maxWidth: '100%', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#fff' }}
+            />
+          </div>
+          
+          {(() => {
+            const filteredUsers = registeredUsers.filter(u => 
+              (u.fullName || '').toLowerCase().includes(userSearchTerm.toLowerCase()) || 
+              (u.phone || '').includes(userSearchTerm)
+            );
+            
+            if (filteredUsers.length === 0) {
+              return (
+                <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '8px', color: 'var(--text-muted)' }}>
+                  {registeredUsers.length === 0 ? 'No registered users found.' : 'No users match your search.'}
+                </div>
+              );
+            }
+            
+            return filteredUsers.map(u => {
+              const allUserSos = [
+                ...activeSOS.map(sos => ({ ...sos, isActive: true })),
+                ...sosHistoryGlobal.map(sos => ({ ...sos, isActive: false }))
+              ].filter(sos => sos.user_id === u.id || sos.user_name === u.fullName)
+              .sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+
+               const isExpanded = expandedUserId === u.id;
+              // Determine their zone if possible, based on their latest SOS
+              const latestSos = allUserSos.length > 0 ? allUserSos[0] : null;
+              const userZone = latestSos ? getSosZoneName(latestSos.zone_id) : 'Global / Unassigned';
+              const hasActiveSos = allUserSos.some(sos => sos.isActive);
+              
+              return (
+                <div key={u.id} style={{ background: hasActiveSos ? 'rgba(239, 68, 68, 0.05)' : 'rgba(255,255,255,0.02)', border: hasActiveSos ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid var(--glass-border)', borderRadius: '12px', overflow: 'hidden' }}>
+                  <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', flex: 1 }}>
+                      <div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Name</div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#fff' }}>{u.fullName || 'Unknown'}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Phone</div>
+                        <div style={{ fontSize: '1.1rem', color: '#fff' }}>{u.phone || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Zone</div>
+                        <div style={{ fontSize: '1.1rem', color: '#a5b4fc' }}>{userZone}</div>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                      {hasActiveSos && (
+                        <div style={{ 
+                          padding: '0.5rem 1rem', 
+                          borderRadius: '30px', 
+                          background: 'rgba(239, 68, 68, 0.2)', 
+                          border: '2px solid rgba(239, 68, 68, 0.8)',
+                          color: '#FCA5A5',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          boxShadow: '0 0 15px rgba(239, 68, 68, 0.4)',
+                          animation: 'pulse 1.5s infinite'
+                        }}>
+                          <span style={{ fontSize: '1.2rem' }}>🚨</span>
+                          <span>SOS: HELP REQUIRED - NEEDS ATTENTION!</span>
+                        </div>
+                      )}
+                      
+                      <button 
+                        onClick={() => setExpandedUserId(isExpanded ? null : u.id)}
+                        className="btn-outline" 
+                        style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', color: isExpanded ? '#fca5a5' : '#a5b4fc', border: `1px solid ${isExpanded ? '#fca5a5' : '#a5b4fc'}`, background: isExpanded ? 'rgba(239, 68, 68, 0.1)' : 'rgba(99, 102, 241, 0.1)' }}
+                      >
+                        {isExpanded ? 'Hide History' : 'View SOS History'}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {isExpanded && (
+                    <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderTop: '1px solid var(--glass-border)' }}>
+                      <h4 style={{ marginBottom: '1rem', color: '#cbd5e1' }}>SOS History Log</h4>
+                      {allUserSos.length === 0 ? (
+                        <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '0.9rem' }}>This user has never triggered an SOS.</div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                          {allUserSos.map(sos => {
+                            const startDate = sos.created_at ? new Date(sos.created_at * 1000).toLocaleString() : 'Unknown';
+                            const endDate = sos.completed_at ? new Date(sos.completed_at * 1000).toLocaleString() : 'Unknown';
+                            const diffSeconds = (sos.completed_at && sos.created_at) ? sos.completed_at - sos.created_at : 0;
+                            
+                            let durationStr = 'Unknown';
+                            if (diffSeconds > 0) {
+                              const d = Math.floor(diffSeconds / 86400);
+                              const h = Math.floor((diffSeconds % 86400) / 3600);
+                              const m = Math.floor((diffSeconds % 3600) / 60);
+                              const s = Math.floor(diffSeconds % 60);
+                              
+                              const parts = [];
+                              if (d > 0) parts.push(`${d}d`);
+                              if (h > 0) parts.push(`${h}h`);
+                              if (m > 0) parts.push(`${m}m`);
+                              parts.push(`${s}s`);
+                              durationStr = parts.join(' ');
+                            }
+                            
+                            return (
+                              <div key={sos.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', borderLeft: `4px solid ${sos.isActive ? '#EF4444' : '#10B981'}` }}>
+                                <div>
+                                  {sos.isActive ? (
+                                    <div style={{ fontWeight: 'bold', color: '#EF4444', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                      <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#EF4444', boxShadow: '0 0 8px #EF4444' }}></span>
+                                      LIVE SOS EMERGENCY
+                                    </div>
+                                  ) : (
+                                    <div style={{ fontWeight: 'bold', color: '#fff', marginBottom: '0.2rem' }}>
+                                      Resolved by {sos.completed_by_name === 'Web Admin' ? `Web Admin (${orgName})` : (sos.completed_by_name || 'Admin')}
+                                    </div>
+                                  )}
+                                  
+                                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>Location: {Number(sos.lat).toFixed(4)}, {Number(sos.lng).toFixed(4)}</div>
+                                  
+                                  <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                    <span><strong>Start:</strong> {startDate}</span>
+                                    {!sos.isActive && <span><strong>End:</strong> {endDate}</span>}
+                                    {!sos.isActive && <span><strong>Duration:</strong> {durationStr}</span>}
+                                  </div>
+                                </div>
+                                
+                                {sos.isActive && (
+                                  <div style={{ color: '#fca5a5', fontSize: '0.85rem', fontWeight: 'bold', padding: '0.2rem 0.6rem', background: 'rgba(239, 68, 68, 0.2)', borderRadius: '12px' }}>
+                                    ACTIVE NOW
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            });
+          })()}
+        </div>
+      )}
+
       {/* NODE MODAL */}
       {showNodeModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
@@ -1243,6 +1485,45 @@ const char* LORA_NODE_SECRET = "${loraSecret}";`}
             </div>
             
             <button onClick={() => setShowNodeModal(false)} className="btn-primary" style={{ width: '100%', marginTop: '2rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>I've copied these details</button>
+          </div>
+        </div>
+      )}
+
+      {/* SETTINGS MODAL */}
+      {showSettingsModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '500px', border: '1px solid var(--glass-border)', position: 'relative' }}>
+            <button onClick={() => setShowSettingsModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
+            <h2 style={{ color: '#fff', marginBottom: '1.5rem' }}>Organization Settings</h2>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '8px' }}>
+              <div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Organization Name</div>
+                <div style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 'bold' }}>{orgProfile?.organization_name || orgName || 'N/A'}</div>
+              </div>
+              
+              <div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Organization ID</div>
+                <div style={{ fontSize: '1.1rem', color: '#a5b4fc', fontFamily: 'monospace' }}>{orgProfile?.organization_id || orgProfile?.id || 'Pending / Not Set'}</div>
+              </div>
+              
+              <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.1)', margin: '0.5rem 0' }} />
+              
+              <div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Admin Name</div>
+                <div style={{ fontSize: '1.1rem', color: '#fff' }}>{orgProfile?.admin_name || 'N/A'}</div>
+              </div>
+              
+              <div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Admin Email</div>
+                <div style={{ fontSize: '1.1rem', color: '#fff' }}>{orgProfile?.admin_email || orgProfile?.email || 'N/A'}</div>
+              </div>
+              
+              <div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.2rem' }}>Admin Phone</div>
+                <div style={{ fontSize: '1.1rem', color: '#fff' }}>{orgProfile?.admin_phone || orgProfile?.phone || 'N/A'}</div>
+              </div>
+            </div>
           </div>
         </div>
       )}

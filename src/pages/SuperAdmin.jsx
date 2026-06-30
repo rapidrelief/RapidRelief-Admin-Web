@@ -442,7 +442,14 @@ export default function SuperAdmin() {
                 {activeFloodList.map(sos => (
                   <tr key={sos.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
                     <td style={{ padding: '1rem 0', fontWeight: '500' }}>{sos.id}</td>
-                    <td style={{ padding: '1rem 0' }}>{sos.user_name || 'Unknown'}</td>
+                    <td style={{ padding: '1rem 0' }}>
+                      {sos.user_name?.includes('Simulated') ? (
+                        <span><span style={{ color: '#FCD34D', fontSize: '0.8rem', padding: '2px 6px', background: 'rgba(252, 211, 77, 0.2)', borderRadius: '4px', marginRight: '6px' }}>TEST FLOOD</span> {sos.user_name}</span>
+                      ) : (
+                        sos.user_name || 'Unknown'
+                      )}
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>Zone ID: {sos.zone_id || 'N/A'}</div>
+                    </td>
                     <td style={{ padding: '1rem 0' }}>{sos.source}</td>
                     <td style={{ padding: '1rem 0', color: 'var(--text-muted)' }}>{new Date(sos.created_at * 1000).toLocaleTimeString()}</td>
                     <td style={{ padding: '1rem 0' }}>
