@@ -126,6 +126,9 @@ export default function OrgAdmin() {
   // Alerts Management
   const [reports, setAlerts] = useState([]);
   const [showAlertsModal, setShowAlertsModal] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [replyAlertId, setReplyAlertId] = useState(null);
+  const [isReplying, setIsReplying] = useState(false);
   const prevAlertsRef = useRef([]);
   const unreadCount = reports.filter(r => !r.is_read).length;
 
@@ -140,7 +143,7 @@ export default function OrgAdmin() {
 
   const fetchAlerts = async (uid) => {
     try {
-      const res = await api.getOrgAlerts(uid);
+      const res = await api.getOrgReports(uid);
       if (res.status === 'success') {
         const newAlerts = res.reports;
         setAlerts(newAlerts);
@@ -163,10 +166,27 @@ export default function OrgAdmin() {
 
   const handleMarkAlertRead = async (reportId) => {
     try {
-      await api.markAlertAsRead(reportId, auth.currentUser.uid);
+      await api.markReportAsRead(reportId, auth.currentUser.uid);
       setAlerts(reports.map(r => r.id === reportId ? { ...r, is_read: true } : r));
     } catch (e) {
       console.error("Failed to mark as read", e);
+    }
+  };
+
+  const handleReplyToAlert = async (reportId) => {
+    if (!replyText.trim()) return;
+    setIsReplying(true);
+    try {
+      await api.replyToReportOrgAdmin(reportId, auth.currentUser.uid, replyText);
+      toast.success("Reply sent successfully!");
+      setReplyText('');
+      setReplyAlertId(null);
+      fetchAlerts(auth.currentUser.uid);
+    } catch (e) {
+      console.error("Failed to reply", e);
+      toast.error("Failed to send reply");
+    } finally {
+      setIsReplying(false);
     }
   };
 
