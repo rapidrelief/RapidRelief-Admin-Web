@@ -217,7 +217,7 @@ export default function SuperAdmin() {
     e.preventDefault();
     setAdminMessage('');
     try {
-      const res = await fetch('http://localhost:8000/super_admin/flag', {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/super_admin/flag`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ firebase_uid: newAdminUid, secret_key: 'RAPID_RELIEF_SUPER_SECRET' })
