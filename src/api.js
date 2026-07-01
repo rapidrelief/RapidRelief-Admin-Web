@@ -262,7 +262,7 @@ export const api = {
 
   async getMessageContacts() {
     const token = await auth.currentUser?.getIdToken();
-    const res = await fetch(`${API_BASE_URL}/messages/contacts`, {
+    const res = await fetch(`${API_BASE_URL}/api/messages/contacts`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return res.json();
@@ -270,7 +270,7 @@ export const api = {
 
   async sendMessage(data) {
     const token = await auth.currentUser?.getIdToken();
-    const res = await fetch(`${API_BASE_URL}/messages/send`, {
+    const res = await fetch(`${API_BASE_URL}/api/messages/send`, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -283,7 +283,7 @@ export const api = {
 
   async getInboxMessages() {
     const token = await auth.currentUser?.getIdToken();
-    const res = await fetch(`${API_BASE_URL}/messages/inbox`, {
+    const res = await fetch(`${API_BASE_URL}/api/messages/inbox`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return res.json();
@@ -291,7 +291,7 @@ export const api = {
 
   async markMessageAsRead(messageId) {
     const token = await auth.currentUser?.getIdToken();
-    const res = await fetch(`${API_BASE_URL}/messages/${messageId}/read`, {
+    const res = await fetch(`${API_BASE_URL}/api/messages/${messageId}/read`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` }
     });
