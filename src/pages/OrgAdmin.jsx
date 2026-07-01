@@ -501,73 +501,115 @@ export default function OrgAdmin() {
     <div className="page-container">
       {/* REPORTS INBOX MODAL */}
       {showAlertsModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '2rem', border: '1px solid rgba(59, 130, 246, 0.5)', position: 'relative' }}>
-            <button onClick={() => setShowAlertsModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
-            <h2 style={{ marginBottom: '0.5rem', color: '#60A5FA' }}>Super Admin Messages</h2>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem', fontStyle: 'italic' }}>
-              Note: Messages older than 1 hour will automatically vanish.
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(10, 15, 30, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', animation: 'fadeIn 0.3s ease-out' }}>
+          <div style={{ width: '100%', maxWidth: '850px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', padding: '2.5rem', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(59, 130, 246, 0.15)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899)' }}></div>
+            
+            <button onClick={() => setShowAlertsModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#cbd5e1', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}>✖</button>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', background: 'linear-gradient(to right, #60A5FA, #A78BFA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '1px' }}>Global Broadcasts</h2>
+                <p style={{ margin: '0.5rem 0 0 0', color: '#64748b', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '2px' }}>Super Admin Directives</p>
+              </div>
             </div>
             
-            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }} className="custom-scrollbar">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#64748b', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '1.5rem' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Messages older than 1 hour will automatically self-destruct from this inbox.
+            </div>
+            
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="custom-scrollbar">
               {reports.length === 0 ? (
-                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>No messages in your inbox.</div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1rem' }}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  <span style={{ color: '#64748b', fontStyle: 'italic', fontSize: '1.1rem' }}>No incoming directives.</span>
+                </div>
               ) : (
                 reports.map(r => (
-                  <div key={r.id} style={{ background: r.is_read ? 'rgba(255,255,255,0.02)' : 'rgba(59, 130, 246, 0.1)', border: r.is_read ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px', padding: '1.5rem', marginBottom: '1rem', transition: 'all 0.2s' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        {!r.is_read && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 8px #3b82f6' }}></div>}
-                        <h3 style={{ margin: 0, color: r.is_read ? '#cbd5e1' : '#fff' }}>{r.subject}</h3>
+                  <div key={r.id} style={{ flexShrink: 0, background: 'rgba(15, 23, 42, 0.6)', border: r.is_read ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '16px', overflow: 'hidden', boxShadow: r.is_read ? 'none' : '0 4px 20px rgba(59, 130, 246, 0.15)', transition: 'all 0.3s', position: 'relative' }}>
+                    {!r.is_read && <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '4px', background: '#3b82f6', boxShadow: '0 0 10px #3b82f6' }}></div>}
+                    
+                    <div style={{ padding: '1.5rem', borderBottom: r.replies && JSON.parse(r.replies).length > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                          <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(249, 115, 22, 0.2))', border: '1px solid rgba(239, 68, 68, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                          </div>
+                          <div>
+                            <h3 style={{ margin: '0 0 0.25rem 0', color: r.is_read ? '#cbd5e1' : '#f8fafc', fontSize: '1.25rem', fontWeight: 'bold' }}>{r.subject}</h3>
+                            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.8rem', background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }}>{r.report_type}</span>
+                              <span style={{ fontSize: '0.8rem', color: '#64748b' }}>•</span>
+                              <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{new Date(r.created_at * 1000).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                            </div>
+                          </div>
+                        </div>
+                        {r.priority && (
+                          <span style={{ background: r.priority === 'High' ? 'rgba(239, 68, 68, 0.1)' : r.priority === 'Medium' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)', color: r.priority === 'High' ? '#fca5a5' : r.priority === 'Medium' ? '#fcd34d' : '#93c5fd', border: `1px solid ${r.priority === 'High' ? 'rgba(239, 68, 68, 0.3)' : r.priority === 'Medium' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`, padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            {r.priority}
+                          </span>
+                        )}
                       </div>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(r.created_at * 1000).toLocaleString()}</span>
-                        <span style={{ padding: '0.2rem 0.5rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', border: `1px solid ${r.priority === 'High' ? '#ef4444' : r.priority === 'Medium' ? '#f59e0b' : '#3b82f6'}`, color: r.priority === 'High' ? '#ef4444' : r.priority === 'Medium' ? '#f59e0b' : '#3b82f6' }}>
-                          {r.priority}
-                        </span>
-                        <span style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem' }}>
-                          {r.report_type}
-                        </span>
+                      <div style={{ color: r.is_read ? '#cbd5e1' : '#f1f5f9', lineHeight: 1.6, whiteSpace: 'pre-wrap', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', borderLeft: '4px solid #ef4444' }}>
+                        {r.message}
                       </div>
-                    </div>
-                    <div style={{ color: r.is_read ? 'var(--text-muted)' : '#e2e8f0', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: '1rem' }}>
-                      {r.message}
                     </div>
 
                     {/* THREADED REPLIES */}
                     {r.replies && JSON.parse(r.replies).length > 0 && (
-                      <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
-                        {JSON.parse(r.replies).map((reply, idx) => (
-                          <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
-                            <div style={{ color: reply.sender === 'SUPER_ADMIN' ? '#ef4444' : '#10b981', marginTop: '2px' }}>↳</div>
-                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '6px' }}>
-                              <div style={{ fontSize: '0.75rem', color: reply.sender === 'SUPER_ADMIN' ? '#ef4444' : '#10b981', marginBottom: '0.2rem', fontWeight: 'bold' }}>
-                                {reply.sender === 'SUPER_ADMIN' ? 'Super Admin' : 'Organization'} <span style={{ color: 'var(--text-muted)', fontWeight: 'normal', marginLeft: '0.5rem' }}>{new Date(reply.timestamp * 1000).toLocaleString()}</span>
+                      <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem' }}>
+                        <h4 style={{ margin: '0 0 1rem 0', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                          Communication Thread
+                        </h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          {JSON.parse(r.replies).map((reply, idx) => {
+                            const isOrgAdmin = reply.sender === 'ORG_ADMIN';
+                            return (
+                              <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: isOrgAdmin ? 'flex-end' : 'flex-start' }}>
+                                <div style={{ 
+                                  maxWidth: '85%', 
+                                  background: isOrgAdmin ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1))' : 'rgba(239, 68, 68, 0.05)', 
+                                  border: isOrgAdmin ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(239, 68, 68, 0.2)', 
+                                  padding: '1rem 1.25rem', 
+                                  borderRadius: isOrgAdmin ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                                  boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                                }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: isOrgAdmin ? '#93c5fd' : '#fca5a5' }}>
+                                      {isOrgAdmin ? 'Organization (You)' : 'Super Admin'}
+                                    </span>
+                                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>{new Date(reply.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                  </div>
+                                  <div style={{ fontSize: '0.95rem', color: '#f1f5f9', lineHeight: 1.5 }}>{reply.content}</div>
+                                </div>
                               </div>
-                              <div style={{ fontSize: '0.9rem', color: '#e2e8f0' }}>{reply.content}</div>
-                            </div>
-                          </div>
-                        ))}
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                    <div style={{ padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.01)', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
                       {replyAlertId === r.id ? (
-                        <div style={{ width: '100%', display: 'flex', gap: '0.5rem' }}>
-                          <input type="text" className="input-field" value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Type your reply..." style={{ flex: 1, padding: '0.4rem 0.75rem' }} />
-                          <button onClick={() => handleReplyToAlert(r.id)} className="btn-primary" disabled={isReplying} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', background: '#3b82f6' }}>
+                        <div style={{ width: '100%', display: 'flex', gap: '0.75rem' }}>
+                          <input type="text" value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Type a secure response..." style={{ flex: 1, padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '8px', color: '#fff', fontSize: '0.95rem', outline: 'none', transition: 'all 0.3s' }} onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'} />
+                          <button onClick={() => handleReplyToAlert(r.id)} disabled={isReplying} style={{ padding: '0 1.5rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', fontWeight: 'bold', borderRadius: '8px', border: 'none', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)' }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                             {isReplying ? '...' : 'Send'}
                           </button>
-                          <button onClick={() => setReplyAlertId(null)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Cancel</button>
+                          <button onClick={() => setReplyAlertId(null)} style={{ padding: '0 1.5rem', background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', fontWeight: 'bold', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>Cancel</button>
                         </div>
                       ) : (
                         <>
-                          <button onClick={() => setReplyAlertId(r.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderColor: '#3b82f6', color: '#3b82f6' }}>
+                          <button onClick={() => setReplyAlertId(r.id)} style={{ padding: '0.5rem 1.5rem', background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa', fontWeight: 'bold', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'; e.currentTarget.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.2)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 14 20 9 15 4"></polyline><path d="M4 20v-7a4 4 0 0 1 4-4h12"></path></svg>
                             Reply
                           </button>
                           {!r.is_read && (
-                            <button onClick={() => handleMarkAlertRead(r.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
-                              Mark as Read
+                            <button onClick={() => handleMarkAlertRead(r.id)} style={{ padding: '0.5rem 1.5rem', background: 'rgba(16, 185, 129, 0.1)', color: '#34d399', fontWeight: 'bold', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'; e.currentTarget.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.2)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                              Acknowledge
                             </button>
                           )}
                         </>
@@ -583,39 +625,56 @@ export default function OrgAdmin() {
 
       {/* MESSAGES INBOX MODAL */}
       {showMessagesModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '2rem', border: '1px solid rgba(16, 185, 129, 0.5)', position: 'relative' }}>
-            <button onClick={() => setShowMessagesModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ margin: 0, color: '#34D399' }}>Direct Messages</h2>
-              <button onClick={() => setShowComposeModal(true)} className="btn-primary" style={{ background: '#10B981', padding: '0.5rem 1rem', fontSize: '0.9rem' }}>
-                + Compose Message
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(10, 15, 30, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', animation: 'fadeIn 0.3s ease-out' }}>
+          <div style={{ width: '100%', maxWidth: '850px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', padding: '2.5rem', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(16, 185, 129, 0.15)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #10b981, #34d399, #3b82f6)' }}></div>
+            
+            <button onClick={() => setShowMessagesModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#cbd5e1', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}>✖</button>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', background: 'linear-gradient(to right, #10b981, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '1px' }}>Secure Comms</h2>
+                <p style={{ margin: '0.5rem 0 0 0', color: '#64748b', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '2px' }}>Direct Messaging Interface</p>
+              </div>
+              <button onClick={() => setShowComposeModal(true)} style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.5)'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.3)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                Compose
               </button>
             </div>
             
-            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }} className="custom-scrollbar">
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }} className="custom-scrollbar">
               {messages.length === 0 ? (
-                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>No messages in your inbox.</div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1rem' }}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                  <span style={{ color: '#64748b', fontStyle: 'italic', fontSize: '1.1rem' }}>No direct messages yet.</span>
+                </div>
               ) : (
                 messages.map(m => (
-                  <div key={m.id} style={{ background: m.is_read ? 'rgba(255,255,255,0.02)' : 'rgba(16, 185, 129, 0.1)', border: m.is_read ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', padding: '1.5rem', marginBottom: '1rem', transition: 'all 0.2s' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        {!m.is_read && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></div>}
+                  <div key={m.id} style={{ flexShrink: 0, background: m.is_read ? 'rgba(15, 23, 42, 0.4)' : 'rgba(16, 185, 129, 0.05)', border: m.is_read ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '16px', padding: '1.5rem', transition: 'all 0.3s', boxShadow: m.is_read ? 'none' : '0 4px 20px rgba(16, 185, 129, 0.1)', position: 'relative', overflow: 'hidden' }}>
+                    {!m.is_read && <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '4px', background: '#10b981', boxShadow: '0 0 10px #10b981' }}></div>}
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2))', border: '1px solid rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                          {m.sender_name.charAt(0).toUpperCase()}
+                        </div>
                         <div>
-                          <h3 style={{ margin: 0, color: m.is_read ? '#cbd5e1' : '#fff' }}>{m.subject}</h3>
-                          <span style={{ fontSize: '0.8rem', color: '#10b981' }}>From: {m.sender_name}</span>
+                          <h3 style={{ margin: '0 0 0.25rem 0', color: m.is_read ? '#cbd5e1' : '#f8fafc', fontSize: '1.1rem' }}>{m.subject}</h3>
+                          <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: '500' }}>From: {m.sender_name}</span>
                         </div>
                       </div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(m.created_at * 1000).toLocaleString()}</span>
+                      <span style={{ fontSize: '0.8rem', color: '#64748b', background: 'rgba(255,255,255,0.03)', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                        {new Date(m.created_at * 1000).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                      </span>
                     </div>
-                    <div style={{ color: m.is_read ? 'var(--text-muted)' : '#e2e8f0', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: '1rem', marginTop: '0.5rem' }}>
+                    <div style={{ color: m.is_read ? '#94a3b8' : '#e2e8f0', lineHeight: 1.6, whiteSpace: 'pre-wrap', paddingLeft: '44px', marginLeft: '1rem' }}>
                       {m.content}
                     </div>
                     {!m.is_read && (
-                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <button onClick={() => handleMarkMessageRead(m.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
-                          Mark as Read
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                        <button onClick={() => handleMarkMessageRead(m.id)} style={{ padding: '0.5rem 1.25rem', background: 'rgba(16, 185, 129, 0.1)', color: '#34d399', fontWeight: 'bold', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'; e.currentTarget.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          Acknowledge
                         </button>
                       </div>
                     )}
@@ -629,34 +688,41 @@ export default function OrgAdmin() {
 
       {/* COMPOSE MESSAGE MODAL */}
       {showComposeModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '500px', padding: '2rem', border: '1px solid rgba(16, 185, 129, 0.5)', position: 'relative' }}>
-            <button onClick={() => setShowComposeModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
-            <h2 style={{ marginBottom: '1.5rem', color: '#34D399' }}>Compose Message</h2>
-            <form onSubmit={handleSendMessage}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Recipient</label>
-                <select className="input-field" value={messageForm.receiver_uid} onChange={(e) => setMessageForm({...messageForm, receiver_uid: e.target.value})} required>
-                  <option value="">Select Recipient...</option>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(10, 15, 30, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', animation: 'fadeIn 0.3s ease-out' }}>
+          <div style={{ width: '100%', maxWidth: '550px', padding: '2.5rem', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.2)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #10b981, #34d399, #6ee7b7)' }}></div>
+            
+            <button onClick={() => setShowComposeModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#cbd5e1', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}>✖</button>
+            
+            <h2 style={{ margin: '0 0 2rem 0', fontSize: '2rem', fontWeight: '900', background: 'linear-gradient(to right, #10B981, #6EE7B7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '1px' }}>New Transmission</h2>
+            
+            <form onSubmit={handleSendMessage} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Destination Node</label>
+                <select style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2310B981\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1em', outline: 'none', transition: 'all 0.3s' }} value={messageForm.receiver_uid} onChange={(e) => setMessageForm({...messageForm, receiver_uid: e.target.value})} required onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'}>
+                  <option value="" style={{ background: '#0f172a' }}>-- Select Recipient --</option>
                   {contacts.map(c => (
-                    <option key={c.id} value={c.id}>
+                    <option key={c.id} value={c.id} style={{ background: '#0f172a' }}>
                       {c.name}
                     </option>
                   ))}
                 </select>
               </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Subject</label>
-                <input type="text" className="input-field" value={messageForm.subject} onChange={(e) => setMessageForm({...messageForm, subject: e.target.value})} required />
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Subject Protocol</label>
+                <input type="text" style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', outline: 'none', transition: 'all 0.3s' }} value={messageForm.subject} onChange={(e) => setMessageForm({...messageForm, subject: e.target.value})} required placeholder="Enter brief subject..." onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'} />
               </div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Message</label>
-                <textarea className="input-field" rows="4" value={messageForm.content} onChange={(e) => setMessageForm({...messageForm, content: e.target.value})} required></textarea>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Payload Data</label>
+                <textarea style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', resize: 'vertical' }} rows="4" value={messageForm.content} onChange={(e) => setMessageForm({...messageForm, content: e.target.value})} required placeholder="Type the message..." onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'}></textarea>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                <button type="button" onClick={() => setShowComposeModal(false)} className="btn-outline">Cancel</button>
-                <button type="submit" className="btn-primary" disabled={isSendingMessage} style={{ background: '#10b981' }}>
-                  {isSendingMessage ? 'Sending...' : 'Send Message'}
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setShowComposeModal(false)} style={{ padding: '0.75rem 1.5rem', background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', fontWeight: 'bold', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>Abort</button>
+                <button type="submit" disabled={isSendingMessage} style={{ padding: '0.75rem 2rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', fontWeight: 'bold', borderRadius: '12px', border: 'none', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.6)'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                  {isSendingMessage ? 'Transmitting...' : 'Send Message 📡'}
                 </button>
               </div>
             </form>

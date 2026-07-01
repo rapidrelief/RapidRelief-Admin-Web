@@ -419,61 +419,102 @@ export default function SuperAdmin() {
       
       {/* VIEW ALERTS MODAL */}
       {showViewAlertsModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '2rem', border: '1px solid rgba(16, 185, 129, 0.5)', position: 'relative' }}>
-            <button onClick={() => setShowViewAlertsModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ margin: 0, color: '#34D399' }}>Sent Alerts</h2>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(10, 15, 30, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', animation: 'fadeIn 0.3s ease-out' }}>
+          <div style={{ width: '100%', maxWidth: '850px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', padding: '2.5rem', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(59, 130, 246, 0.15)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899)' }}></div>
+            
+            <button onClick={() => setShowViewAlertsModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#cbd5e1', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}>✖</button>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', background: 'linear-gradient(to right, #60A5FA, #A78BFA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '1px' }}>Sent Alerts Vault</h2>
+                <p style={{ margin: '0.5rem 0 0 0', color: '#64748b', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '2px' }}>Communication History</p>
+              </div>
             </div>
             
-            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }} className="custom-scrollbar">
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="custom-scrollbar">
               {superAdminAlerts.length === 0 ? (
-                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>No alerts sent.</div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1rem' }}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  <span style={{ color: '#64748b', fontStyle: 'italic', fontSize: '1.1rem' }}>No alerts broadcasted yet.</span>
+                </div>
               ) : (
                 superAdminAlerts.map(a => (
-                  <div key={a.id} style={{ background: a.is_read ? 'rgba(255,255,255,0.02)' : 'rgba(16, 185, 129, 0.1)', border: a.is_read ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', padding: '1.5rem', marginBottom: '1rem', transition: 'all 0.2s' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        {!a.is_read && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></div>}
-                        <div>
-                          <h3 style={{ margin: 0, color: a.is_read ? '#cbd5e1' : '#fff' }}>{a.subject}</h3>
-                          <span style={{ fontSize: '0.8rem', color: '#10b981' }}>To Org: {a.organization_id}</span>
+                  <div key={a.id} style={{ flexShrink: 0, background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.2)', transition: 'transform 0.2s', position: 'relative' }}>
+                    
+                    <div style={{ padding: '1.5rem', borderBottom: a.replies && JSON.parse(a.replies).length > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                          <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2))', border: '1px solid rgba(59, 130, 246, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                          </div>
+                          <div>
+                            <h3 style={{ margin: '0 0 0.25rem 0', color: '#f8fafc', fontSize: '1.25rem', fontWeight: 'bold' }}>{a.subject}</h3>
+                            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.8rem', background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa', padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>Target: ORG-{1000 + a.organization_id}</span>
+                              <span style={{ fontSize: '0.8rem', color: '#64748b' }}>•</span>
+                              <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{new Date(a.created_at * 1000).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                            </div>
+                          </div>
                         </div>
+                        {a.priority && (
+                          <span style={{ background: a.priority === 'High' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)', color: a.priority === 'High' ? '#fca5a5' : '#fcd34d', border: `1px solid ${a.priority === 'High' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`, padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            {a.priority}
+                          </span>
+                        )}
                       </div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(a.created_at * 1000).toLocaleString()}</span>
-                    </div>
-                    <div style={{ color: a.is_read ? 'var(--text-muted)' : '#e2e8f0', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: '1rem', marginTop: '0.5rem' }}>
-                      {a.message}
+                      <div style={{ color: '#cbd5e1', lineHeight: 1.6, whiteSpace: 'pre-wrap', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', borderLeft: '4px solid #60a5fa' }}>
+                        {a.message}
+                      </div>
                     </div>
 
                     {/* THREADED REPLIES */}
                     {a.replies && JSON.parse(a.replies).length > 0 && (
-                      <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
-                        {JSON.parse(a.replies).map((reply, idx) => (
-                          <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
-                            <div style={{ color: reply.sender === 'SUPER_ADMIN' ? '#10b981' : '#ef4444', marginTop: '2px' }}>↳</div>
-                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '6px' }}>
-                              <div style={{ fontSize: '0.75rem', color: reply.sender === 'SUPER_ADMIN' ? '#10b981' : '#ef4444', marginBottom: '0.2rem', fontWeight: 'bold' }}>
-                                {reply.sender === 'SUPER_ADMIN' ? 'Super Admin' : 'Organization'} <span style={{ color: 'var(--text-muted)', fontWeight: 'normal', marginLeft: '0.5rem' }}>{new Date(reply.timestamp * 1000).toLocaleString()}</span>
+                      <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem' }}>
+                        <h4 style={{ margin: '0 0 1rem 0', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                          Communication Thread
+                        </h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                          {JSON.parse(a.replies).map((reply, idx) => {
+                            const isSuperAdmin = reply.sender === 'SUPER_ADMIN';
+                            return (
+                              <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: isSuperAdmin ? 'flex-end' : 'flex-start' }}>
+                                <div style={{ 
+                                  maxWidth: '85%', 
+                                  background: isSuperAdmin ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1))' : 'rgba(255,255,255,0.03)', 
+                                  border: isSuperAdmin ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(255,255,255,0.08)', 
+                                  padding: '1rem 1.25rem', 
+                                  borderRadius: isSuperAdmin ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                                  boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                                }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: isSuperAdmin ? '#93c5fd' : '#cbd5e1' }}>
+                                      {isSuperAdmin ? 'Super Admin (You)' : `Organization (ORG-${1000 + a.organization_id})`}
+                                    </span>
+                                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>{new Date(reply.timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                  </div>
+                                  <div style={{ fontSize: '0.95rem', color: '#f1f5f9', lineHeight: 1.5 }}>{reply.content}</div>
+                                </div>
                               </div>
-                              <div style={{ fontSize: '0.9rem', color: '#e2e8f0' }}>{reply.content}</div>
-                            </div>
-                          </div>
-                        ))}
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                    <div style={{ padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.01)', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'flex-end' }}>
                       {replyFormAlertId === a.id ? (
-                        <div style={{ width: '100%', display: 'flex', gap: '0.5rem' }}>
-                          <input type="text" className="input-field" value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Type your reply..." style={{ flex: 1, padding: '0.4rem 0.75rem' }} />
-                          <button onClick={() => handleReplyToSuperAdminAlert(a.id)} className="btn-primary" disabled={isReplying} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', background: '#10b981' }}>
+                        <div style={{ width: '100%', display: 'flex', gap: '0.75rem' }}>
+                          <input type="text" value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Type a secure response..." style={{ flex: 1, padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '8px', color: '#fff', fontSize: '0.95rem', outline: 'none', transition: 'all 0.3s' }} onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'} />
+                          <button onClick={() => handleReplyToSuperAdminAlert(a.id)} disabled={isReplying} style={{ padding: '0 1.5rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', fontWeight: 'bold', borderRadius: '8px', border: 'none', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)' }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                             {isReplying ? '...' : 'Send'}
                           </button>
-                          <button onClick={() => setReplyFormAlertId(null)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Cancel</button>
+                          <button onClick={() => setReplyFormAlertId(null)} style={{ padding: '0 1.5rem', background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', fontWeight: 'bold', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>Cancel</button>
                         </div>
                       ) : (
-                        <button onClick={() => setReplyFormAlertId(a.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderColor: '#10b981', color: '#10b981' }}>
+                        <button onClick={() => setReplyFormAlertId(a.id)} style={{ padding: '0.5rem 1.5rem', background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa', fontWeight: 'bold', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'; e.currentTarget.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.2)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 14 20 9 15 4"></polyline><path d="M4 20v-7a4 4 0 0 1 4-4h12"></path></svg>
                           Reply
                         </button>
                       )}
@@ -487,65 +528,70 @@ export default function SuperAdmin() {
       )}
 
       {showReportModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', padding: '2rem', border: '1px solid rgba(59, 130, 246, 0.5)', position: 'relative' }}>
-            <button onClick={() => setShowReportModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
-            <h2 style={{ marginBottom: '1.5rem', color: '#60A5FA' }}>Compose Alert for Organization</h2>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(10, 15, 30, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', animation: 'fadeIn 0.3s ease-out' }}>
+          <div style={{ width: '100%', maxWidth: '650px', padding: '2.5rem', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.2)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd)' }}></div>
+            
+            <button onClick={() => setShowReportModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#cbd5e1', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}>✖</button>
+            
+            <h2 style={{ margin: '0 0 2rem 0', fontSize: '2rem', fontWeight: '900', background: 'linear-gradient(to right, #60A5FA, #93c5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '1px' }}>Global Alert Broadcast</h2>
             
             {reportMsg && (
-              <div style={{ background: reportMsg.includes('success') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', padding: '1rem', borderRadius: '8px', color: reportMsg.includes('success') ? '#6EE7B7' : '#FCA5A5', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+              <div style={{ background: reportMsg.includes('success') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', padding: '1rem', borderRadius: '12px', color: reportMsg.includes('success') ? '#6EE7B7' : '#FCA5A5', marginBottom: '1.5rem', fontSize: '0.95rem', border: `1px solid ${reportMsg.includes('success') ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d={reportMsg.includes('success') ? "M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4L12 14.01l-3-3" : "M18 6L6 18 M6 6l12 12"}></path></svg>
                 {reportMsg}
               </div>
             )}
             
-            <form onSubmit={handleSendReport} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form onSubmit={handleSendReport} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
-                <label className="label">Target Organization</label>
-                <select className="input-field" value={reportForm.organization_id} onChange={(e) => setReportForm({...reportForm, organization_id: e.target.value})} required>
-                  <option value="">-- Select Organization --</option>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Target Organization</label>
+                <select style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2360A5FA\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1em', outline: 'none', transition: 'all 0.3s' }} value={reportForm.organization_id} onChange={(e) => setReportForm({...reportForm, organization_id: e.target.value})} required onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'}>
+                  <option value="" style={{ background: '#0f172a' }}>-- Select Organization --</option>
                   {approvedOrgs.map(org => (
-                    <option key={org.id} value={org.id}>{org.name} (ID: ORG-{1000+org.id})</option>
+                    <option key={org.id} value={org.id} style={{ background: '#0f172a' }}>{org.name} (ID: ORG-{1000+org.id})</option>
                   ))}
                 </select>
               </div>
               
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1 }}>
-                  <label className="label">Report Type</label>
-                  <select className="input-field" value={reportForm.report_type} onChange={(e) => setReportForm({...reportForm, report_type: e.target.value})} required>
-                    <option value="Notification">General Notification</option>
-                    <option value="Flood Warning">Flood Warning</option>
-                    <option value="SOS">SOS Alert</option>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Report Type</label>
+                  <select style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2360A5FA\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1em', outline: 'none', transition: 'all 0.3s' }} value={reportForm.report_type} onChange={(e) => setReportForm({...reportForm, report_type: e.target.value})} required onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'}>
+                    <option value="Notification" style={{ background: '#0f172a' }}>General Notification</option>
+                    <option value="Flood Warning" style={{ background: '#0f172a' }}>Flood Warning</option>
+                    <option value="SOS" style={{ background: '#0f172a' }}>SOS Alert</option>
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label className="label">Priority Level</label>
-                  <select className="input-field" value={reportForm.priority} onChange={(e) => setReportForm({...reportForm, priority: e.target.value})} required style={{ borderLeft: reportForm.priority === 'High' ? '4px solid #ef4444' : reportForm.priority === 'Medium' ? '4px solid #f59e0b' : '4px solid #3b82f6' }}>
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High (Urgent)</option>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Priority Level</label>
+                  <select style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(59, 130, 246, 0.3)', borderLeft: reportForm.priority === 'High' ? '4px solid #ef4444' : reportForm.priority === 'Medium' ? '4px solid #f59e0b' : '4px solid #3b82f6', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2360A5FA\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1em', outline: 'none', transition: 'all 0.3s' }} value={reportForm.priority} onChange={(e) => setReportForm({...reportForm, priority: e.target.value})} required onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'}>
+                    <option value="Low" style={{ background: '#0f172a' }}>Low</option>
+                    <option value="Medium" style={{ background: '#0f172a' }}>Medium</option>
+                    <option value="High" style={{ background: '#0f172a' }}>High (Urgent)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="label">Subject</label>
-                <input type="text" className="input-field" value={reportForm.subject} onChange={(e) => setReportForm({...reportForm, subject: e.target.value})} required placeholder="Enter brief subject..." />
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Subject</label>
+                <input type="text" style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', outline: 'none', transition: 'all 0.3s' }} value={reportForm.subject} onChange={(e) => setReportForm({...reportForm, subject: e.target.value})} required placeholder="Enter brief subject..." onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'} />
               </div>
 
               <div>
-                <label className="label">Message Content</label>
-                <textarea className="input-field" rows="5" value={reportForm.message} onChange={(e) => setReportForm({...reportForm, message: e.target.value})} required placeholder="Type the detailed message here..."></textarea>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Message Content</label>
+                <textarea style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', resize: 'vertical' }} rows="5" value={reportForm.message} onChange={(e) => setReportForm({...reportForm, message: e.target.value})} required placeholder="Type the detailed message here..." onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'}></textarea>
               </div>
 
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', fontStyle: 'italic' }}>
-                Note: Notifications automatically vanish from the organization's inbox after 1 hour.
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#64748b', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                Notifications automatically vanish from the organization's inbox after 1 hour of inactivity.
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-                <button type="button" onClick={() => setShowReportModal(false)} className="btn-outline" style={{ padding: '0.75rem 1.5rem' }}>Cancel</button>
-                <button type="submit" className="btn-primary" disabled={isSendingReport} style={{ background: 'linear-gradient(to right, #3B82F6, #1D4ED8)', padding: '0.75rem 1.5rem', fontWeight: 'bold' }}>
-                  {isSendingReport ? 'Sending...' : 'Send Alert 🚀'}
+                <button type="button" onClick={() => setShowReportModal(false)} style={{ padding: '0.75rem 1.5rem', background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', fontWeight: 'bold', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>Cancel</button>
+                <button type="submit" disabled={isSendingReport} style={{ padding: '0.75rem 2rem', background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)', color: '#fff', fontWeight: 'bold', borderRadius: '12px', border: 'none', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.6)'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.4)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                  {isSendingReport ? 'Transmitting...' : 'Broadcast Alert 🚀'}
                 </button>
               </div>
             </form>
@@ -555,39 +601,56 @@ export default function SuperAdmin() {
 
       {/* MESSAGES INBOX MODAL */}
       {showMessagesModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '2rem', border: '1px solid rgba(16, 185, 129, 0.5)', position: 'relative' }}>
-            <button onClick={() => setShowMessagesModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ margin: 0, color: '#34D399' }}>Direct Messages</h2>
-              <button onClick={() => setShowComposeModal(true)} className="btn-primary" style={{ background: '#10B981', padding: '0.5rem 1rem', fontSize: '0.9rem' }}>
-                + Compose Message
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(10, 15, 30, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', animation: 'fadeIn 0.3s ease-out' }}>
+          <div style={{ width: '100%', maxWidth: '850px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', padding: '2.5rem', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(16, 185, 129, 0.15)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #10b981, #34d399, #3b82f6)' }}></div>
+            
+            <button onClick={() => setShowMessagesModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#cbd5e1', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}>✖</button>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', background: 'linear-gradient(to right, #10b981, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '1px' }}>Secure Comms</h2>
+                <p style={{ margin: '0.5rem 0 0 0', color: '#64748b', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '2px' }}>Direct Messaging Interface</p>
+              </div>
+              <button onClick={() => setShowComposeModal(true)} style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.5)'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.3)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                Compose
               </button>
             </div>
             
-            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }} className="custom-scrollbar">
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }} className="custom-scrollbar">
               {messages.length === 0 ? (
-                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>No messages in your inbox.</div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '1rem' }}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                  <span style={{ color: '#64748b', fontStyle: 'italic', fontSize: '1.1rem' }}>No direct messages yet.</span>
+                </div>
               ) : (
                 messages.map(m => (
-                  <div key={m.id} style={{ background: m.is_read ? 'rgba(255,255,255,0.02)' : 'rgba(16, 185, 129, 0.1)', border: m.is_read ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', padding: '1.5rem', marginBottom: '1rem', transition: 'all 0.2s' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        {!m.is_read && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></div>}
+                  <div key={m.id} style={{ flexShrink: 0, background: m.is_read ? 'rgba(15, 23, 42, 0.4)' : 'rgba(16, 185, 129, 0.05)', border: m.is_read ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '16px', padding: '1.5rem', transition: 'all 0.3s', boxShadow: m.is_read ? 'none' : '0 4px 20px rgba(16, 185, 129, 0.1)', position: 'relative', overflow: 'hidden' }}>
+                    {!m.is_read && <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '4px', background: '#10b981', boxShadow: '0 0 10px #10b981' }}></div>}
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2))', border: '1px solid rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                          {m.sender_name.charAt(0).toUpperCase()}
+                        </div>
                         <div>
-                          <h3 style={{ margin: 0, color: m.is_read ? '#cbd5e1' : '#fff' }}>{m.subject}</h3>
-                          <span style={{ fontSize: '0.8rem', color: '#10b981' }}>From: {m.sender_name}</span>
+                          <h3 style={{ margin: '0 0 0.25rem 0', color: m.is_read ? '#cbd5e1' : '#f8fafc', fontSize: '1.1rem' }}>{m.subject}</h3>
+                          <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: '500' }}>From: {m.sender_name}</span>
                         </div>
                       </div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(m.created_at * 1000).toLocaleString()}</span>
+                      <span style={{ fontSize: '0.8rem', color: '#64748b', background: 'rgba(255,255,255,0.03)', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                        {new Date(m.created_at * 1000).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                      </span>
                     </div>
-                    <div style={{ color: m.is_read ? 'var(--text-muted)' : '#e2e8f0', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: '1rem', marginTop: '0.5rem' }}>
+                    <div style={{ color: m.is_read ? '#94a3b8' : '#e2e8f0', lineHeight: 1.6, whiteSpace: 'pre-wrap', paddingLeft: '44px', marginLeft: '1rem' }}>
                       {m.content}
                     </div>
                     {!m.is_read && (
-                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <button onClick={() => handleMarkMessageRead(m.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
-                          Mark as Read
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                        <button onClick={() => handleMarkMessageRead(m.id)} style={{ padding: '0.5rem 1.25rem', background: 'rgba(16, 185, 129, 0.1)', color: '#34d399', fontWeight: 'bold', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.3)', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'; e.currentTarget.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'; e.currentTarget.style.boxShadow = 'none'; }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          Acknowledge
                         </button>
                       </div>
                     )}
@@ -601,34 +664,41 @@ export default function SuperAdmin() {
 
       {/* COMPOSE MESSAGE MODAL */}
       {showComposeModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="glass-panel" style={{ width: '100%', maxWidth: '500px', padding: '2rem', border: '1px solid rgba(16, 185, 129, 0.5)', position: 'relative' }}>
-            <button onClick={() => setShowComposeModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
-            <h2 style={{ marginBottom: '1.5rem', color: '#34D399' }}>Compose Message</h2>
-            <form onSubmit={handleSendMessage}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Recipient</label>
-                <select className="input-field" value={messageForm.receiver_uid} onChange={(e) => setMessageForm({...messageForm, receiver_uid: e.target.value})} required>
-                  <option value="">Select Recipient...</option>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(10, 15, 30, 0.85)', backdropFilter: 'blur(12px)', zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', animation: 'fadeIn 0.3s ease-out' }}>
+          <div style={{ width: '100%', maxWidth: '550px', padding: '2.5rem', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.2)', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #10b981, #34d399, #6ee7b7)' }}></div>
+            
+            <button onClick={() => setShowComposeModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#cbd5e1', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', cursor: 'pointer', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)'; }} onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}>✖</button>
+            
+            <h2 style={{ margin: '0 0 2rem 0', fontSize: '2rem', fontWeight: '900', background: 'linear-gradient(to right, #10B981, #6EE7B7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '1px' }}>New Transmission</h2>
+            
+            <form onSubmit={handleSendMessage} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Destination Node</label>
+                <select style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2310B981\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1em', outline: 'none', transition: 'all 0.3s' }} value={messageForm.receiver_uid} onChange={(e) => setMessageForm({...messageForm, receiver_uid: e.target.value})} required onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'}>
+                  <option value="" style={{ background: '#0f172a' }}>-- Select Recipient --</option>
                   {contacts.map(c => (
-                    <option key={c.id} value={c.id}>
+                    <option key={c.id} value={c.id} style={{ background: '#0f172a' }}>
                       {c.name}
                     </option>
                   ))}
                 </select>
               </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Subject</label>
-                <input type="text" className="input-field" value={messageForm.subject} onChange={(e) => setMessageForm({...messageForm, subject: e.target.value})} required />
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Subject Protocol</label>
+                <input type="text" style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', outline: 'none', transition: 'all 0.3s' }} value={messageForm.subject} onChange={(e) => setMessageForm({...messageForm, subject: e.target.value})} required placeholder="Enter brief subject..." onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'} />
               </div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Message</label>
-                <textarea className="input-field" rows="4" value={messageForm.content} onChange={(e) => setMessageForm({...messageForm, content: e.target.value})} required></textarea>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Payload Data</label>
+                <textarea style={{ width: '100%', padding: '0.875rem 1rem', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', color: '#f1f5f9', fontSize: '1rem', outline: 'none', transition: 'all 0.3s', resize: 'vertical' }} rows="4" value={messageForm.content} onChange={(e) => setMessageForm({...messageForm, content: e.target.value})} required placeholder="Type the message..." onFocus={(e) => e.target.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.3)'} onBlur={(e) => e.target.style.boxShadow = 'none'}></textarea>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                <button type="button" onClick={() => setShowComposeModal(false)} className="btn-outline">Cancel</button>
-                <button type="submit" className="btn-primary" disabled={isSendingMessage} style={{ background: '#10b981' }}>
-                  {isSendingMessage ? 'Sending...' : 'Send Message'}
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setShowComposeModal(false)} style={{ padding: '0.75rem 1.5rem', background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', fontWeight: 'bold', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>Abort</button>
+                <button type="submit" disabled={isSendingMessage} style={{ padding: '0.75rem 2rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', fontWeight: 'bold', borderRadius: '12px', border: 'none', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.6)'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                  {isSendingMessage ? 'Transmitting...' : 'Send Message 📡'}
                 </button>
               </div>
             </form>
@@ -636,67 +706,157 @@ export default function SuperAdmin() {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} className="header">
-        <div>
-          <h1 className="title">Super Admin Portal</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Manage Organizations, SOS, and System Settings</p>
+      <div className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', position: 'relative', marginBottom: '2rem' }}>
+        {/* Title */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <h1 style={{ 
+            fontSize: '2.5rem', 
+            fontWeight: '900', 
+            margin: 0, 
+            background: 'linear-gradient(135deg, #a5b4fc 0%, #818cf8 50%, #c084fc 100%)', 
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent',
+            textShadow: '0 0 20px rgba(165, 180, 252, 0.3)',
+            letterSpacing: '1px'
+          }}>
+            SUPER ADMIN
+          </h1>
+          <p style={{ color: '#94a3b8', fontSize: '0.95rem', letterSpacing: '2px', textTransform: 'uppercase', marginTop: '0.2rem' }}>
+            Central Command Center
+          </p>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button className="btn-primary" onClick={handleLogout} style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#FCA5A5', padding: '0.5rem 1rem' }}>
-              Logout
-            </button>
-            <button 
-              onClick={() => setShowMessagesModal(true)}
-              style={{ position: 'relative', background: 'rgba(16, 185, 129, 0.2)', color: '#10B981', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.5)', display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', fontWeight: 'bold' }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-              Messages
-              {unreadMessagesCount > 0 && (
-                <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#10b981', color: '#fff', fontSize: '0.65rem', fontWeight: 'bold', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 2px #0f172a' }}>
-                  {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
-                </span>
-              )}
-            </button>
-            <button className="btn-outline" onClick={() => { fetchSuperAdminAlerts(); setShowViewAlertsModal(true); }} style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#10b981', padding: '0.5rem 1rem', fontWeight: 'bold', borderRadius: '8px' }}>
-              👁 View Sent Alerts
-            </button>
-            <button className="btn-primary" onClick={() => setShowReportModal(true)} style={{ background: '#3b82f6', color: '#fff', padding: '0.5rem 1rem', fontWeight: 'bold', boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}>
-              ✉ Send Alert
-            </button>
-          </div>
-          <button className="btn-outline" onClick={fetchData} style={{ fontSize: '0.8rem', padding: '0.4rem 1rem', alignSelf: 'flex-end' }}>
-            Refresh Data
+
+        {/* Right Side - Actions */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button 
+            onClick={fetchData} 
+            className="btn-futuristic"
+            style={{ 
+              background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#cbd5e1', 
+              padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.3s'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Sync
+          </button>
+
+          <button 
+            onClick={() => setShowMessagesModal(true)}
+            style={{ position: 'relative', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)', color: '#34d399', padding: '0.6rem 1.2rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.3s', fontWeight: 'bold', boxShadow: '0 4px 20px rgba(16, 185, 129, 0.15)' }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'; e.currentTarget.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.15)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Comms
+            {unreadMessagesCount > 0 && (
+              <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#10b981', color: '#fff', fontSize: '0.7rem', fontWeight: 'bold', minWidth: '22px', height: '22px', borderRadius: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 3px #0f172a, 0 0 10px #10b981', padding: '0 4px' }}>
+                {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+              </span>
+            )}
+          </button>
+
+          <button 
+            onClick={() => { fetchSuperAdminAlerts(); setShowViewAlertsModal(true); }}
+            style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)', border: '1px solid rgba(59, 130, 246, 0.5)', color: '#60a5fa', padding: '0.6rem 1.2rem', fontWeight: 'bold', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.3s', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.15)' }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.25)'; e.currentTarget.style.boxShadow = '0 0 15px rgba(59, 130, 246, 0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(59, 130, 246, 0.15)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            Alerts
+          </button>
+
+          <button 
+            onClick={() => setShowReportModal(true)} 
+            style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: '#fff', padding: '0.6rem 1.2rem', fontWeight: 'bold', borderRadius: '12px', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.3s', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.4)' }}
+            onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.7)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(59, 130, 246, 0.4)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            Broadcast
+          </button>
+
+          <div style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }}></div>
+
+          <button 
+            onClick={handleLogout} 
+            style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '0.6rem', borderRadius: '12px', border: '1px solid rgba(239, 68, 68, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.color = '#fca5a5'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            title="Logout"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
           </button>
         </div>
       </div>
 
-      {/* TABS */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem', overflowX: 'auto' }}>
-        <button className={activeTab === 'dashboard' ? 'tab-active' : 'tab-inactive'} onClick={() => setActiveTab('dashboard')} style={{ background: 'none', border: 'none', fontSize: '1.1rem', fontWeight: activeTab === 'dashboard' ? 'bold' : 'normal', color: activeTab === 'dashboard' ? '#fff' : 'var(--text-muted)', cursor: 'pointer', padding: '0.5rem 1rem', borderBottom: activeTab === 'dashboard' ? '2px solid #a5b4fc' : '2px solid transparent', whiteSpace: 'nowrap' }}>
-          Dashboard
-        </button>
-        <button className={activeTab === 'organizations' ? 'tab-active' : 'tab-inactive'} onClick={() => setActiveTab('organizations')} style={{ background: 'none', border: 'none', fontSize: '1.1rem', fontWeight: activeTab === 'organizations' ? 'bold' : 'normal', color: activeTab === 'organizations' ? '#fff' : 'var(--text-muted)', cursor: 'pointer', padding: '0.5rem 1rem', borderBottom: activeTab === 'organizations' ? '2px solid #a5b4fc' : '2px solid transparent', whiteSpace: 'nowrap', position: 'relative' }}>
-          Organizations
-          {orgs.length > 0 && (
-            <span style={{ position: 'absolute', top: '0', right: '-5px', background: '#EF4444', color: '#fff', fontSize: '0.75rem', fontWeight: 'bold', minWidth: '20px', height: '20px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', boxShadow: '0 0 0 2px #0f172a' }}>
-              {orgs.length}
-            </span>
-          )}
-        </button>
-        <button className={activeTab === 'users' ? 'tab-active' : 'tab-inactive'} onClick={() => setActiveTab('users')} style={{ background: 'none', border: 'none', fontSize: '1.1rem', fontWeight: activeTab === 'users' ? 'bold' : 'normal', color: activeTab === 'users' ? '#fff' : 'var(--text-muted)', cursor: 'pointer', padding: '0.5rem 1rem', borderBottom: activeTab === 'users' ? '2px solid #a5b4fc' : '2px solid transparent', whiteSpace: 'nowrap' }}>
-          Users
-        </button>
-        <button className={activeTab === 'testing' ? 'tab-active' : 'tab-inactive'} onClick={() => setActiveTab('testing')} style={{ background: 'none', border: 'none', fontSize: '1.1rem', fontWeight: activeTab === 'testing' ? 'bold' : 'normal', color: activeTab === 'testing' ? '#fff' : 'var(--text-muted)', cursor: 'pointer', padding: '0.5rem 1rem', borderBottom: activeTab === 'testing' ? '2px solid #a5b4fc' : '2px solid transparent', whiteSpace: 'nowrap' }}>
-          Testing
-        </button>
-        <button className={activeTab === 'analytics' ? 'tab-active' : 'tab-inactive'} onClick={() => setActiveTab('analytics')} style={{ background: 'none', border: 'none', fontSize: '1.1rem', fontWeight: activeTab === 'analytics' ? 'bold' : 'normal', color: activeTab === 'analytics' ? '#fff' : 'var(--text-muted)', cursor: 'pointer', padding: '0.5rem 1rem', borderBottom: activeTab === 'analytics' ? '2px solid #a5b4fc' : '2px solid transparent', whiteSpace: 'nowrap' }}>
-          AI Analytics
-        </button>
+      {/* FUTURISTIC TABS */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', padding: '0.5rem', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)', overflowX: 'auto', WebkitOverflowScrolling: 'touch', position: 'relative' }}>
+        {[
+          { id: 'dashboard', label: 'Dashboard', icon: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' },
+          { id: 'organizations', label: 'Organizations', badge: orgs.length, icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75' },
+          { id: 'users', label: 'Global Users', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z' },
+          { id: 'testing', label: 'Testing', icon: 'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 9.36l-7.1 7.1a1 1 0 0 1-1.41-1.41l7.1-7.1a6 6 0 0 1 9.36-7.94l-3.77 3.77a1 1 0 0 0 0 1.41z' },
+          { id: 'analytics', label: 'AI Analytics', icon: 'M12 2v20 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' }
+        ].map((tab) => (
+          <button 
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)} 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              background: activeTab === tab.id ? 'rgba(99, 102, 241, 0.2)' : 'transparent', 
+              border: activeTab === tab.id ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid transparent', 
+              fontSize: '0.95rem', 
+              fontWeight: activeTab === tab.id ? 'bold' : '500', 
+              color: activeTab === tab.id ? '#c7d2fe' : '#94a3b8', 
+              cursor: 'pointer', 
+              padding: '0.75rem 1.5rem', 
+              borderRadius: '12px',
+              whiteSpace: 'nowrap', 
+              transition: 'all 0.3s',
+              boxShadow: activeTab === tab.id ? '0 0 15px rgba(99, 102, 241, 0.15)' : 'none'
+            }}
+            onMouseOver={(e) => { 
+              if (activeTab !== tab.id) {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                e.currentTarget.style.color = '#cbd5e1';
+              }
+            }}
+            onMouseOut={(e) => { 
+              if (activeTab !== tab.id) {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#94a3b8';
+              }
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: activeTab === tab.id ? 1 : 0.7 }}>
+              <path d={tab.icon}></path>
+            </svg>
+            {tab.label}
+            {tab.badge > 0 && (
+              <span style={{ 
+                background: '#EF4444', 
+                color: '#fff', 
+                fontSize: '0.7rem', 
+                fontWeight: 'bold', 
+                minWidth: '20px', 
+                height: '20px', 
+                borderRadius: '10px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                padding: '0 6px',
+                marginLeft: '0.25rem',
+                boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)'
+              }}>
+                {tab.badge}
+              </span>
+            )}
+          </button>
+        ))}
       </div>
 
       {/* TESTING TAB CONTENT */}
