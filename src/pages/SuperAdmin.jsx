@@ -55,6 +55,15 @@ export default function SuperAdmin() {
   const [reportMsg, setReportMsg] = useState('');
   const [isSendingReport, setIsSendingReport] = useState(false);
 
+  // Universal Messaging System State
+  const [messages, setMessages] = useState([]);
+  const [showMessagesModal, setShowMessagesModal] = useState(false);
+  const [showComposeModal, setShowComposeModal] = useState(false);
+  const [contacts, setContacts] = useState([]);
+  const [messageForm, setMessageForm] = useState({ receiver_uid: '', subject: '', content: '' });
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const unreadMessagesCount = messages.filter(m => !m.is_read).length;
+
   const fetchData = async () => {
     try {
       const currentUser = auth.currentUser;
@@ -85,15 +94,74 @@ export default function SuperAdmin() {
     setLoading(false);
   };
 
+  const fetchMessages = async () => {
+    try {
+      const res = await api.getInboxMessages();
+      const newMessages = res.messages || [];
+      const oldUnread = messages.filter(m => !m.is_read).map(m => m.id);
+      const newlyUnread = newMessages.filter(m => !m.is_read && !oldUnread.includes(m.id));
+      if (newlyUnread.length > 0 && messages.length > 0) {
+        // Just rely on the indicator, or use toast if imported
+      }
+      setMessages(newMessages);
+    } catch (e) {
+      console.error("Failed to fetch messages", e);
+    }
+  };
+
+  const fetchContacts = async () => {
+    try {
+      const res = await api.getMessageContacts();
+      setContacts(res.contacts || []);
+    } catch (e) {
+      console.error("Failed to fetch contacts", e);
+    }
+  };
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!messageForm.receiver_uid || !messageForm.subject || !messageForm.content) return;
+    setIsSendingMessage(true);
+    try {
+      await api.sendMessage(messageForm);
+      setShowComposeModal(false);
+      setMessageForm({ receiver_uid: '', subject: '', content: '' });
+      alert("Message sent successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send message.");
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
+
+  const handleMarkMessageRead = async (messageId) => {
+    try {
+      await api.markMessageAsRead(messageId);
+      setMessages(messages.map(m => m.id === messageId ? { ...m, is_read: true } : m));
+    } catch (e) {
+      console.error("Failed to mark message as read", e);
+    }
+  };
+
   useEffect(() => {
+    let interval;
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         fetchData();
+        fetchMessages();
+        fetchContacts();
+        interval = setInterval(() => {
+          fetchMessages();
+        }, 15000);
       } else {
         navigate('/login');
       }
     });
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (interval) clearInterval(interval);
+    };
   }, [navigate]);
 
   const handleLogout = async () => {
@@ -383,6 +451,89 @@ export default function SuperAdmin() {
         </div>
       )}
 
+      {/* MESSAGES INBOX MODAL */}
+      {showMessagesModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '2rem', border: '1px solid rgba(16, 185, 129, 0.5)', position: 'relative' }}>
+            <button onClick={() => setShowMessagesModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ margin: 0, color: '#34D399' }}>Direct Messages</h2>
+              <button onClick={() => setShowComposeModal(true)} className="btn-primary" style={{ background: '#10B981', padding: '0.5rem 1rem', fontSize: '0.9rem' }}>
+                + Compose Message
+              </button>
+            </div>
+            
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }} className="custom-scrollbar">
+              {messages.length === 0 ? (
+                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>No messages in your inbox.</div>
+              ) : (
+                messages.map(m => (
+                  <div key={m.id} style={{ background: m.is_read ? 'rgba(255,255,255,0.02)' : 'rgba(16, 185, 129, 0.1)', border: m.is_read ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', padding: '1.5rem', marginBottom: '1rem', transition: 'all 0.2s' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        {!m.is_read && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></div>}
+                        <div>
+                          <h3 style={{ margin: 0, color: m.is_read ? '#cbd5e1' : '#fff' }}>{m.subject}</h3>
+                          <span style={{ fontSize: '0.8rem', color: '#10b981' }}>From: {m.sender_name}</span>
+                        </div>
+                      </div>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(m.created_at * 1000).toLocaleString()}</span>
+                    </div>
+                    <div style={{ color: m.is_read ? 'var(--text-muted)' : '#e2e8f0', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: '1rem', marginTop: '0.5rem' }}>
+                      {m.content}
+                    </div>
+                    {!m.is_read && (
+                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button onClick={() => handleMarkMessageRead(m.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+                          Mark as Read
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* COMPOSE MESSAGE MODAL */}
+      {showComposeModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '500px', padding: '2rem', border: '1px solid rgba(16, 185, 129, 0.5)', position: 'relative' }}>
+            <button onClick={() => setShowComposeModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
+            <h2 style={{ marginBottom: '1.5rem', color: '#34D399' }}>Compose Message</h2>
+            <form onSubmit={handleSendMessage}>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Recipient</label>
+                <select className="input-field" value={messageForm.receiver_uid} onChange={(e) => setMessageForm({...messageForm, receiver_uid: e.target.value})} required>
+                  <option value="">Select Recipient...</option>
+                  {contacts.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Subject</label>
+                <input type="text" className="input-field" value={messageForm.subject} onChange={(e) => setMessageForm({...messageForm, subject: e.target.value})} required />
+              </div>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Message</label>
+                <textarea className="input-field" rows="4" value={messageForm.content} onChange={(e) => setMessageForm({...messageForm, content: e.target.value})} required></textarea>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                <button type="button" onClick={() => setShowComposeModal(false)} className="btn-outline">Cancel</button>
+                <button type="submit" className="btn-primary" disabled={isSendingMessage} style={{ background: '#10b981' }}>
+                  {isSendingMessage ? 'Sending...' : 'Send Message'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} className="header">
         <div>
           <h1 className="title">Super Admin Portal</h1>
@@ -392,6 +543,22 @@ export default function SuperAdmin() {
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button className="btn-primary" onClick={handleLogout} style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#FCA5A5', padding: '0.5rem 1rem' }}>
               Logout
+            </button>
+            <button 
+              onClick={() => setShowMessagesModal(true)}
+              style={{ position: 'relative', background: 'rgba(16, 185, 129, 0.2)', color: '#10B981', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.5)', display: 'flex', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s', fontWeight: 'bold' }}
+              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.3)'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              Messages
+              {unreadMessagesCount > 0 && (
+                <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#10b981', color: '#fff', fontSize: '0.65rem', fontWeight: 'bold', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 2px #0f172a' }}>
+                  {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+                </span>
+              )}
             </button>
             <button className="btn-primary" onClick={() => setShowReportModal(true)} style={{ background: '#3b82f6', color: '#fff', padding: '0.5rem 1rem', fontWeight: 'bold', boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}>
               ✉ Send Report

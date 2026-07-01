@@ -224,5 +224,76 @@ export const api = {
     });
     if (!res.ok) throw new Error('Failed to bulk delete SOS');
     return res.json();
+  },
+
+  async getPrediction(zoneId, days = 7) {
+    const res = await fetch(`${API_BASE_URL}/prediction/zone/${zoneId}?days=${days}`);
+    if (!res.ok) throw new Error('Failed to fetch AI predictions');
+    return res.json();
+  },
+
+  async sendSuperAdminReport(reportData) {
+    const token = await auth.currentUser?.getIdToken();
+    const res = await fetch(`${API_BASE_URL}/super_admin/report`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}` 
+      },
+      body: JSON.stringify(reportData)
+    });
+    if (!res.ok) throw new Error('Failed to send report');
+    return res.json();
+  },
+
+  async getOrgReports(firebase_uid) {
+    const res = await fetch(`${API_BASE_URL}/org_admin/reports?firebase_uid=${firebase_uid}`);
+    if (!res.ok) throw new Error('Failed to fetch reports');
+    return res.json();
+  },
+
+  async markReportAsRead(reportId, firebase_uid) {
+    const res = await fetch(`${API_BASE_URL}/org_admin/reports/${reportId}/read?firebase_uid=${firebase_uid}`, {
+      method: "POST"
+    });
+    if (!res.ok) throw new Error('Failed to mark report as read');
+    return res.json();
+  }
+  async getMessageContacts() {
+    const token = await auth.currentUser?.getIdToken();
+    const res = await fetch(`${API_BASE_URL}/messages/contacts`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.json();
+  },
+
+  async sendMessage(data) {
+    const token = await auth.currentUser?.getIdToken();
+    const res = await fetch(`${API_BASE_URL}/messages/send`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}` 
+      },
+      body: JSON.stringify(data)
+    });
+    return res.json();
+  },
+
+  async getInboxMessages() {
+    const token = await auth.currentUser?.getIdToken();
+    const res = await fetch(`${API_BASE_URL}/messages/inbox`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.json();
+  },
+
+  async markMessageAsRead(messageId) {
+    const token = await auth.currentUser?.getIdToken();
+    const res = await fetch(`${API_BASE_URL}/messages/${messageId}/read`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.json();
   }
 };

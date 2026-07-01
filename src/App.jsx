@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import SuperAdmin from './pages/SuperAdmin';
 import OrgAdmin from './pages/OrgAdmin';
 import RegisterOrg from './pages/RegisterOrg';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Landing from './pages/Landing';
 import About from './pages/About';
@@ -13,6 +15,7 @@ import Terms from './pages/Terms';
 function App() {
   return (
     <Router>
+      <ToastContainer position="top-right" autoClose={5000} theme="dark" />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/about" element={<About />} />
