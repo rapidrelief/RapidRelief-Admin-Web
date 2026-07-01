@@ -662,6 +662,9 @@ export default function SuperAdmin() {
                 </span>
               )}
             </button>
+            <button className="btn-outline" onClick={() => { fetchSuperAdminAlerts(); setShowViewAlertsModal(true); }} style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.5)', color: '#10b981', padding: '0.5rem 1rem', fontWeight: 'bold', borderRadius: '8px' }}>
+              👁 View Sent Alerts
+            </button>
             <button className="btn-primary" onClick={() => setShowReportModal(true)} style={{ background: '#3b82f6', color: '#fff', padding: '0.5rem 1rem', fontWeight: 'bold', boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}>
               ✉ Send Alert
             </button>
