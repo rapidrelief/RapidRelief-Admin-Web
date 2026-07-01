@@ -258,7 +258,8 @@ export const api = {
     });
     if (!res.ok) throw new Error('Failed to mark report as read');
     return res.json();
-  }
+  },
+
   async getMessageContacts() {
     const token = await auth.currentUser?.getIdToken();
     const res = await fetch(`${API_BASE_URL}/messages/contacts`, {
