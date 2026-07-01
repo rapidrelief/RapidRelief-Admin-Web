@@ -123,10 +123,10 @@ export default function OrgAdmin() {
   const [loraSecret, setLoraSecret] = useState(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
   const [selectedZoneForDevices, setSelectedZoneForDevices] = useState(null);
 
-  // Reports Management
-  const [reports, setReports] = useState([]);
-  const [showReportsModal, setShowReportsModal] = useState(false);
-  const prevReportsRef = useRef([]);
+  // Alerts Management
+  const [reports, setAlerts] = useState([]);
+  const [showAlertsModal, setShowAlertsModal] = useState(false);
+  const prevAlertsRef = useRef([]);
   const unreadCount = reports.filter(r => !r.is_read).length;
 
   // Universal Messaging System State
@@ -138,33 +138,33 @@ export default function OrgAdmin() {
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const unreadMessagesCount = messages.filter(m => !m.is_read).length;
 
-  const fetchReports = async (uid) => {
+  const fetchAlerts = async (uid) => {
     try {
-      const res = await api.getOrgReports(uid);
+      const res = await api.getOrgAlerts(uid);
       if (res.status === 'success') {
-        const newReports = res.reports;
-        setReports(newReports);
+        const newAlerts = res.reports;
+        setAlerts(newAlerts);
         
         // Toast newly arrived unread reports
-        const prevIds = new Set(prevReportsRef.current.map(r => r.id));
-        newReports.forEach(r => {
+        const prevIds = new Set(prevAlertsRef.current.map(r => r.id));
+        newAlerts.forEach(r => {
           if (!r.is_read && !prevIds.has(r.id)) {
-            toast.info(`New ${r.priority} Priority Report: ${r.subject}`, {
+            toast.info(`New ${r.priority} Priority Alert: ${r.subject}`, {
               icon: r.report_type === 'SOS' ? '🚨' : r.report_type === 'Flood Warning' ? '🌊' : '🔔'
             });
           }
         });
-        prevReportsRef.current = newReports;
+        prevAlertsRef.current = newAlerts;
       }
     } catch (e) {
       console.error("Failed to fetch reports", e);
     }
   };
 
-  const handleMarkReportRead = async (reportId) => {
+  const handleMarkAlertRead = async (reportId) => {
     try {
-      await api.markReportAsRead(reportId, auth.currentUser.uid);
-      setReports(reports.map(r => r.id === reportId ? { ...r, is_read: true } : r));
+      await api.markAlertAsRead(reportId, auth.currentUser.uid);
+      setAlerts(reports.map(r => r.id === reportId ? { ...r, is_read: true } : r));
     } catch (e) {
       console.error("Failed to mark as read", e);
     }
@@ -234,11 +234,11 @@ export default function OrgAdmin() {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         fetchData(user);
-        fetchReports(user.uid);
+        fetchAlerts(user.uid);
         fetchMessages();
         fetchContacts();
         interval = setInterval(() => {
-          fetchReports(user.uid);
+          fetchAlerts(user.uid);
           fetchMessages();
         }, 15000);
       } else {
@@ -480,10 +480,10 @@ export default function OrgAdmin() {
   return (
     <div className="page-container">
       {/* REPORTS INBOX MODAL */}
-      {showReportsModal && (
+      {showAlertsModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '2rem', border: '1px solid rgba(59, 130, 246, 0.5)', position: 'relative' }}>
-            <button onClick={() => setShowReportsModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
+            <button onClick={() => setShowAlertsModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
             <h2 style={{ marginBottom: '0.5rem', color: '#60A5FA' }}>Super Admin Messages</h2>
             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem', fontStyle: 'italic' }}>
               Note: Messages older than 1 hour will automatically vanish.
@@ -513,13 +513,46 @@ export default function OrgAdmin() {
                     <div style={{ color: r.is_read ? 'var(--text-muted)' : '#e2e8f0', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: '1rem' }}>
                       {r.message}
                     </div>
-                    {!r.is_read && (
-                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <button onClick={() => handleMarkReportRead(r.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
-                          Mark as Read
-                        </button>
+
+                    {/* THREADED REPLIES */}
+                    {r.replies && JSON.parse(r.replies).length > 0 && (
+                      <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
+                        {JSON.parse(r.replies).map((reply, idx) => (
+                          <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
+                            <div style={{ color: reply.sender === 'SUPER_ADMIN' ? '#ef4444' : '#10b981', marginTop: '2px' }}>↳</div>
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '6px' }}>
+                              <div style={{ fontSize: '0.75rem', color: reply.sender === 'SUPER_ADMIN' ? '#ef4444' : '#10b981', marginBottom: '0.2rem', fontWeight: 'bold' }}>
+                                {reply.sender === 'SUPER_ADMIN' ? 'Super Admin' : 'Organization'} <span style={{ color: 'var(--text-muted)', fontWeight: 'normal', marginLeft: '0.5rem' }}>{new Date(reply.timestamp * 1000).toLocaleString()}</span>
+                              </div>
+                              <div style={{ fontSize: '0.9rem', color: '#e2e8f0' }}>{reply.content}</div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                      {replyAlertId === r.id ? (
+                        <div style={{ width: '100%', display: 'flex', gap: '0.5rem' }}>
+                          <input type="text" className="input-field" value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Type your reply..." style={{ flex: 1, padding: '0.4rem 0.75rem' }} />
+                          <button onClick={() => handleReplyToAlert(r.id)} className="btn-primary" disabled={isReplying} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', background: '#3b82f6' }}>
+                            {isReplying ? '...' : 'Send'}
+                          </button>
+                          <button onClick={() => setReplyAlertId(null)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Cancel</button>
+                        </div>
+                      ) : (
+                        <>
+                          <button onClick={() => setReplyAlertId(r.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderColor: '#3b82f6', color: '#3b82f6' }}>
+                            Reply
+                          </button>
+                          {!r.is_read && (
+                            <button onClick={() => handleMarkAlertRead(r.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+                              Mark as Read
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))
               )}
@@ -636,7 +669,7 @@ export default function OrgAdmin() {
             </button>
             {/* NOTIFICATION BELL */}
             <button 
-              onClick={() => setShowReportsModal(true)}
+              onClick={() => setShowAlertsModal(true)}
               style={{ position: 'relative', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', marginRight: '0.5rem' }}
               onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
               onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
@@ -761,7 +794,7 @@ export default function OrgAdmin() {
                       <div style={{ fontSize: '0.9rem', color: '#cbd5e1', marginBottom: '0.5rem' }}>
                         <div><strong>Zone:</strong> {getSosZoneName(sos.zone_id)}</div>
                         {sos.user_name && <div><strong>User:</strong> {sos.user_name} ({sos.user_phone})</div>}
-                        {sos.rescuer_name && <div><strong>Reported by:</strong> {sos.rescuer_name}</div>}
+                        {sos.rescuer_name && <div><strong>Alerted by:</strong> {sos.rescuer_name}</div>}
                         {sos.lat && sos.lng && (
                           <div style={{ marginTop: '0.3rem', fontSize: '0.8rem', color: '#94a3b8' }}>
                             Location: {Number(sos.lat).toFixed(5)}, {Number(sos.lng).toFixed(5)}

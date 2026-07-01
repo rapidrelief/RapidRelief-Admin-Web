@@ -260,6 +260,39 @@ export const api = {
     return res.json();
   },
 
+  async replyToReportOrgAdmin(reportId, firebase_uid, content) {
+    const res = await fetch(`${API_BASE_URL}/org_admin/reports/${reportId}/reply?firebase_uid=${firebase_uid}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content })
+    });
+    if (!res.ok) throw new Error('Failed to reply to report');
+    return res.json();
+  },
+
+  async getSuperAdminReports() {
+    const token = await auth.currentUser?.getIdToken();
+    const res = await fetch(`${API_BASE_URL}/super_admin/reports`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to fetch super admin reports');
+    return res.json();
+  },
+
+  async replyToReportSuperAdmin(reportId, content) {
+    const token = await auth.currentUser?.getIdToken();
+    const res = await fetch(`${API_BASE_URL}/super_admin/reports/${reportId}/reply`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}` 
+      },
+      body: JSON.stringify({ content })
+    });
+    if (!res.ok) throw new Error('Failed to reply to report');
+    return res.json();
+  },
+
   async getMessageContacts() {
     const token = await auth.currentUser?.getIdToken();
     const res = await fetch(`${API_BASE_URL}/api/messages/contacts`, {

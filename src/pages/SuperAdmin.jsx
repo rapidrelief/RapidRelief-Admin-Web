@@ -45,6 +45,11 @@ export default function SuperAdmin() {
 
   // Report Management State
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showViewAlertsModal, setShowViewAlertsModal] = useState(false);
+  const [superAdminAlerts, setSuperAdminAlerts] = useState([]);
+  const [replyFormAlertId, setReplyFormAlertId] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [isReplying, setIsReplying] = useState(false);
   const [reportForm, setReportForm] = useState({
     organization_id: '',
     priority: 'Medium',
@@ -151,8 +156,10 @@ export default function SuperAdmin() {
         fetchData();
         fetchMessages();
         fetchContacts();
+        fetchSuperAdminAlerts();
         interval = setInterval(() => {
           fetchMessages();
+          fetchSuperAdminAlerts();
         }, 15000);
       } else {
         navigate('/login');
@@ -230,6 +237,31 @@ export default function SuperAdmin() {
       }
     } catch (err) {
       setAdminMessage('Network error occurred.');
+    }
+  };
+
+    const fetchSuperAdminAlerts = async () => {
+    try {
+      const res = await api.getSuperAdminReports();
+      setSuperAdminAlerts(res.reports || []);
+    } catch (e) {
+      console.error("Failed to fetch super admin alerts", e);
+    }
+  };
+
+  const handleReplyToSuperAdminAlert = async (alertId) => {
+    if (!replyText.trim()) return;
+    setIsReplying(true);
+    try {
+      await api.replyToReportSuperAdmin(alertId, replyText);
+      setReplyText('');
+      setReplyFormAlertId(null);
+      fetchSuperAdminAlerts();
+    } catch (e) {
+      console.error("Failed to reply", e);
+      alert("Failed to reply.");
+    } finally {
+      setIsReplying(false);
     }
   };
 
@@ -384,11 +416,81 @@ export default function SuperAdmin() {
 
   return (
     <div className="page-container">
+      
+      {/* VIEW ALERTS MODAL */}
+      {showViewAlertsModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '2rem', border: '1px solid rgba(16, 185, 129, 0.5)', position: 'relative' }}>
+            <button onClick={() => setShowViewAlertsModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ margin: 0, color: '#34D399' }}>Sent Alerts</h2>
+            </div>
+            
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }} className="custom-scrollbar">
+              {superAdminAlerts.length === 0 ? (
+                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>No alerts sent.</div>
+              ) : (
+                superAdminAlerts.map(a => (
+                  <div key={a.id} style={{ background: a.is_read ? 'rgba(255,255,255,0.02)' : 'rgba(16, 185, 129, 0.1)', border: a.is_read ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', padding: '1.5rem', marginBottom: '1rem', transition: 'all 0.2s' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        {!a.is_read && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></div>}
+                        <div>
+                          <h3 style={{ margin: 0, color: a.is_read ? '#cbd5e1' : '#fff' }}>{a.subject}</h3>
+                          <span style={{ fontSize: '0.8rem', color: '#10b981' }}>To Org: {a.organization_id}</span>
+                        </div>
+                      </div>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(a.created_at * 1000).toLocaleString()}</span>
+                    </div>
+                    <div style={{ color: a.is_read ? 'var(--text-muted)' : '#e2e8f0', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: '1rem', marginTop: '0.5rem' }}>
+                      {a.message}
+                    </div>
+
+                    {/* THREADED REPLIES */}
+                    {a.replies && JSON.parse(a.replies).length > 0 && (
+                      <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
+                        {JSON.parse(a.replies).map((reply, idx) => (
+                          <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
+                            <div style={{ color: reply.sender === 'SUPER_ADMIN' ? '#10b981' : '#ef4444', marginTop: '2px' }}>↳</div>
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '6px' }}>
+                              <div style={{ fontSize: '0.75rem', color: reply.sender === 'SUPER_ADMIN' ? '#10b981' : '#ef4444', marginBottom: '0.2rem', fontWeight: 'bold' }}>
+                                {reply.sender === 'SUPER_ADMIN' ? 'Super Admin' : 'Organization'} <span style={{ color: 'var(--text-muted)', fontWeight: 'normal', marginLeft: '0.5rem' }}>{new Date(reply.timestamp * 1000).toLocaleString()}</span>
+                              </div>
+                              <div style={{ fontSize: '0.9rem', color: '#e2e8f0' }}>{reply.content}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem' }}>
+                      {replyFormAlertId === a.id ? (
+                        <div style={{ width: '100%', display: 'flex', gap: '0.5rem' }}>
+                          <input type="text" className="input-field" value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Type your reply..." style={{ flex: 1, padding: '0.4rem 0.75rem' }} />
+                          <button onClick={() => handleReplyToSuperAdminAlert(a.id)} className="btn-primary" disabled={isReplying} style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', background: '#10b981' }}>
+                            {isReplying ? '...' : 'Send'}
+                          </button>
+                          <button onClick={() => setReplyFormAlertId(null)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>Cancel</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setReplyFormAlertId(a.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem', borderColor: '#10b981', color: '#10b981' }}>
+                          Reply
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showReportModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', padding: '2rem', border: '1px solid rgba(59, 130, 246, 0.5)', position: 'relative' }}>
             <button onClick={() => setShowReportModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
-            <h2 style={{ marginBottom: '1.5rem', color: '#60A5FA' }}>Compose Report for Organization</h2>
+            <h2 style={{ marginBottom: '1.5rem', color: '#60A5FA' }}>Compose Alert for Organization</h2>
             
             {reportMsg && (
               <div style={{ background: reportMsg.includes('success') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', padding: '1rem', borderRadius: '8px', color: reportMsg.includes('success') ? '#6EE7B7' : '#FCA5A5', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
@@ -443,7 +545,7 @@ export default function SuperAdmin() {
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
                 <button type="button" onClick={() => setShowReportModal(false)} className="btn-outline" style={{ padding: '0.75rem 1.5rem' }}>Cancel</button>
                 <button type="submit" className="btn-primary" disabled={isSendingReport} style={{ background: 'linear-gradient(to right, #3B82F6, #1D4ED8)', padding: '0.75rem 1.5rem', fontWeight: 'bold' }}>
-                  {isSendingReport ? 'Sending...' : 'Send Report 🚀'}
+                  {isSendingReport ? 'Sending...' : 'Send Alert 🚀'}
                 </button>
               </div>
             </form>
@@ -561,7 +663,7 @@ export default function SuperAdmin() {
               )}
             </button>
             <button className="btn-primary" onClick={() => setShowReportModal(true)} style={{ background: '#3b82f6', color: '#fff', padding: '0.5rem 1rem', fontWeight: 'bold', boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}>
-              ✉ Send Report
+              ✉ Send Alert
             </button>
           </div>
           <button className="btn-outline" onClick={fetchData} style={{ fontSize: '0.8rem', padding: '0.4rem 1rem', alignSelf: 'flex-end' }}>
@@ -709,7 +811,7 @@ export default function SuperAdmin() {
       {/* LIVE FLOOD SECTION */}
       <div className="glass-panel" style={{ marginBottom: '2rem', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2 style={{ margin: 0, color: '#60A5FA' }}>Live Flood Reports</h2>
+          <h2 style={{ margin: 0, color: '#60A5FA' }}>Organization Alerts</h2>
           {activeFloodList.length > 0 && (
             <button onClick={() => handleMarkAllCompleted(activeFloodList)} className="btn-primary" style={{ background: '#3B82F6', padding: '0.4rem 1rem', fontSize: '0.875rem' }}>
               Mark All Completed
