@@ -6,6 +6,9 @@ import { collection, getDocs } from 'firebase/firestore';
 import { api } from '../api';
 import { MapContainer, TileLayer, Circle, Popup, useMap, Marker } from 'react-leaflet';
 import L from 'leaflet';
+import AnalyticsPanel from '../components/AnalyticsPanel';
+import { toast } from 'react-toastify';
+import { useRef } from 'react';
 
 // Create a custom icon for rescuers
 const rescuerIcon = new L.divIcon({
@@ -120,15 +123,60 @@ export default function OrgAdmin() {
   const [loraSecret, setLoraSecret] = useState(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15));
   const [selectedZoneForDevices, setSelectedZoneForDevices] = useState(null);
 
+  // Reports Management
+  const [reports, setReports] = useState([]);
+  const [showReportsModal, setShowReportsModal] = useState(false);
+  const prevReportsRef = useRef([]);
+
+  const fetchReports = async (uid) => {
+    try {
+      const res = await api.getOrgReports(uid);
+      if (res.status === 'success') {
+        const newReports = res.reports;
+        setReports(newReports);
+        
+        // Toast newly arrived unread reports
+        const prevIds = new Set(prevReportsRef.current.map(r => r.id));
+        newReports.forEach(r => {
+          if (!r.is_read && !prevIds.has(r.id)) {
+            toast.info(`New ${r.priority} Priority Report: ${r.subject}`, {
+              icon: r.report_type === 'SOS' ? '🚨' : r.report_type === 'Flood Warning' ? '🌊' : '🔔'
+            });
+          }
+        });
+        prevReportsRef.current = newReports;
+      }
+    } catch (e) {
+      console.error("Failed to fetch reports", e);
+    }
+  };
+
+  const handleMarkReportRead = async (reportId) => {
+    try {
+      await api.markReportAsRead(reportId, auth.currentUser.uid);
+      setReports(reports.map(r => r.id === reportId ? { ...r, is_read: true } : r));
+    } catch (e) {
+      console.error("Failed to mark as read", e);
+    }
+  };
+
   useEffect(() => {
+    let interval;
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         fetchData(user);
+        fetchReports(user.uid);
+        interval = setInterval(() => {
+          fetchReports(user.uid);
+        }, 15000);
       } else {
         navigate('/login');
       }
     });
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (interval) clearInterval(interval);
+    };
   }, [navigate]);
 
   const fetchData = async (user = auth.currentUser) => {
@@ -359,13 +407,80 @@ export default function OrgAdmin() {
 
   return (
     <div className="page-container">
+      {/* REPORTS INBOX MODAL */}
+      {showReportsModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', padding: '2rem', border: '1px solid rgba(59, 130, 246, 0.5)', position: 'relative' }}>
+            <button onClick={() => setShowReportsModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
+            <h2 style={{ marginBottom: '0.5rem', color: '#60A5FA' }}>Super Admin Messages</h2>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem', fontStyle: 'italic' }}>
+              Note: Messages older than 1 hour will automatically vanish.
+            </div>
+            
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }} className="custom-scrollbar">
+              {reports.length === 0 ? (
+                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>No messages in your inbox.</div>
+              ) : (
+                reports.map(r => (
+                  <div key={r.id} style={{ background: r.is_read ? 'rgba(255,255,255,0.02)' : 'rgba(59, 130, 246, 0.1)', border: r.is_read ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px', padding: '1.5rem', marginBottom: '1rem', transition: 'all 0.2s' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        {!r.is_read && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 8px #3b82f6' }}></div>}
+                        <h3 style={{ margin: 0, color: r.is_read ? '#cbd5e1' : '#fff' }}>{r.subject}</h3>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(r.created_at * 1000).toLocaleString()}</span>
+                        <span style={{ padding: '0.2rem 0.5rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold', border: `1px solid ${r.priority === 'High' ? '#ef4444' : r.priority === 'Medium' ? '#f59e0b' : '#3b82f6'}`, color: r.priority === 'High' ? '#ef4444' : r.priority === 'Medium' ? '#f59e0b' : '#3b82f6' }}>
+                          {r.priority}
+                        </span>
+                        <span style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem' }}>
+                          {r.report_type}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ color: r.is_read ? 'var(--text-muted)' : '#e2e8f0', lineHeight: 1.5, whiteSpace: 'pre-wrap', marginBottom: '1rem' }}>
+                      {r.message}
+                    </div>
+                    {!r.is_read && (
+                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button onClick={() => handleMarkReportRead(r.id)} className="btn-outline" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+                          Mark as Read
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }} className="header">
         <div>
           <h1 className="title">Organization Portal</h1>
           <p style={{ color: 'var(--text-muted)' }}>Manage Rescuers, Zones, and Sensors</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            {/* NOTIFICATION BELL */}
+            <button 
+              onClick={() => setShowReportsModal(true)}
+              style={{ position: 'relative', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', marginRight: '0.5rem' }}
+              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              {reports.filter(r => !r.is_read).length > 0 && (
+                <span style={{ position: 'absolute', top: 0, right: 0, background: '#ef4444', color: '#fff', fontSize: '0.65rem', fontWeight: 'bold', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 2px #0f172a' }}>
+                  {reports.filter(r => !r.is_read).length}
+                </span>
+              )}
+            </button>
+
             <button className="btn-primary" onClick={handleLogout} style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#FCA5A5' }}>
               Logout
             </button>
@@ -407,6 +522,12 @@ export default function OrgAdmin() {
           style={{ background: 'none', border: 'none', color: activeTab === 'users' ? '#a5b4fc' : 'var(--text-muted)', fontSize: '1rem', cursor: 'pointer', fontWeight: activeTab === 'users' ? 'bold' : 'normal' }}
         >
           Users
+        </button>
+        <button 
+          onClick={() => setActiveTab('analytics')} 
+          style={{ background: 'none', border: 'none', color: activeTab === 'analytics' ? '#a5b4fc' : 'var(--text-muted)', fontSize: '1rem', cursor: 'pointer', fontWeight: activeTab === 'analytics' ? 'bold' : 'normal' }}
+        >
+          AI Analytics
         </button>
       </div>
 
@@ -1487,6 +1608,11 @@ const char* LORA_NODE_SECRET = "${loraSecret}";`}
             <button onClick={() => setShowNodeModal(false)} className="btn-primary" style={{ width: '100%', marginTop: '2rem', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>I've copied these details</button>
           </div>
         </div>
+      )}
+
+      {/* ANALYTICS TAB */}
+      {activeTab === 'analytics' && (
+        <AnalyticsPanel zones={zones} />
       )}
 
       {/* SETTINGS MODAL */}

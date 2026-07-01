@@ -4,6 +4,7 @@ import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { api } from '../api';
+import AnalyticsPanel from '../components/AnalyticsPanel';
 
 export default function SuperAdmin() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function SuperAdmin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [globalZones, setGlobalZones] = useState([]);
   
   // Users Management State
   const [registeredUsers, setRegisteredUsers] = useState([]);
@@ -41,20 +43,35 @@ export default function SuperAdmin() {
   const [simFloodMessage, setSimFloodMessage] = useState('');
   const [isSimulatingFlood, setIsSimulatingFlood] = useState(false);
 
+  // Report Management State
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportForm, setReportForm] = useState({
+    organization_id: '',
+    priority: 'Medium',
+    report_type: 'Notification',
+    subject: '',
+    message: ''
+  });
+  const [reportMsg, setReportMsg] = useState('');
+  const [isSendingReport, setIsSendingReport] = useState(false);
+
   const fetchData = async () => {
     try {
-      const [pendingData, approvedData, activeSosData, historyData, usersSnapshot] = await Promise.all([
+      const currentUser = auth.currentUser;
+      const [pendingData, approvedData, activeSosData, historyData, usersSnapshot, globalZonesData] = await Promise.all([
         api.getPendingOrgs(),
         api.getApprovedOrgs(),
         api.getGlobalActiveSOS(),
         api.getGlobalSOSHistory(),
-        getDocs(collection(db, 'users'))
+        getDocs(collection(db, 'users')),
+        api.getGlobalZones(currentUser?.uid)
       ]);
       
       if (pendingData.status === 'success') setOrgs(pendingData.organizations);
       setApprovedOrgs(approvedData);
       setActiveSOS(activeSosData.sos || []);
       setSosHistory(historyData.sos || []);
+      if (Array.isArray(globalZonesData)) setGlobalZones(globalZonesData);
       
       const usersList = [];
       usersSnapshot.forEach((doc) => {
@@ -145,6 +162,36 @@ export default function SuperAdmin() {
       }
     } catch (err) {
       setAdminMessage('Network error occurred.');
+    }
+  };
+
+  const handleSendReport = async (e) => {
+    e.preventDefault();
+    if (!reportForm.organization_id) {
+      setReportMsg('Please select an organization.');
+      return;
+    }
+    setIsSendingReport(true);
+    setReportMsg('Sending...');
+    try {
+      await api.sendSuperAdminReport({
+        ...reportForm,
+        organization_id: parseInt(reportForm.organization_id)
+      });
+      setReportMsg('Report sent successfully!');
+      setTimeout(() => {
+        setShowReportModal(false);
+        setReportMsg('');
+        setReportForm({
+          ...reportForm,
+          subject: '',
+          message: ''
+        });
+      }, 1500);
+    } catch (err) {
+      setReportMsg('Failed to send report.');
+    } finally {
+      setIsSendingReport(false);
     }
   };
 
@@ -269,16 +316,88 @@ export default function SuperAdmin() {
 
   return (
     <div className="page-container">
+      {showReportModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '600px', padding: '2rem', border: '1px solid rgba(59, 130, 246, 0.5)', position: 'relative' }}>
+            <button onClick={() => setShowReportModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>✖</button>
+            <h2 style={{ marginBottom: '1.5rem', color: '#60A5FA' }}>Compose Report for Organization</h2>
+            
+            {reportMsg && (
+              <div style={{ background: reportMsg.includes('success') ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', padding: '1rem', borderRadius: '8px', color: reportMsg.includes('success') ? '#6EE7B7' : '#FCA5A5', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                {reportMsg}
+              </div>
+            )}
+            
+            <form onSubmit={handleSendReport} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label className="label">Target Organization</label>
+                <select className="input-field" value={reportForm.organization_id} onChange={(e) => setReportForm({...reportForm, organization_id: e.target.value})} required>
+                  <option value="">-- Select Organization --</option>
+                  {approvedOrgs.map(org => (
+                    <option key={org.id} value={org.id}>{org.name} (ID: ORG-{1000+org.id})</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1 }}>
+                  <label className="label">Report Type</label>
+                  <select className="input-field" value={reportForm.report_type} onChange={(e) => setReportForm({...reportForm, report_type: e.target.value})} required>
+                    <option value="Notification">General Notification</option>
+                    <option value="Flood Warning">Flood Warning</option>
+                    <option value="SOS">SOS Alert</option>
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="label">Priority Level</label>
+                  <select className="input-field" value={reportForm.priority} onChange={(e) => setReportForm({...reportForm, priority: e.target.value})} required style={{ borderLeft: reportForm.priority === 'High' ? '4px solid #ef4444' : reportForm.priority === 'Medium' ? '4px solid #f59e0b' : '4px solid #3b82f6' }}>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High (Urgent)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="label">Subject</label>
+                <input type="text" className="input-field" value={reportForm.subject} onChange={(e) => setReportForm({...reportForm, subject: e.target.value})} required placeholder="Enter brief subject..." />
+              </div>
+
+              <div>
+                <label className="label">Message Content</label>
+                <textarea className="input-field" rows="5" value={reportForm.message} onChange={(e) => setReportForm({...reportForm, message: e.target.value})} required placeholder="Type the detailed message here..."></textarea>
+              </div>
+
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', fontStyle: 'italic' }}>
+                Note: Notifications automatically vanish from the organization's inbox after 1 hour.
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setShowReportModal(false)} className="btn-outline" style={{ padding: '0.75rem 1.5rem' }}>Cancel</button>
+                <button type="submit" className="btn-primary" disabled={isSendingReport} style={{ background: 'linear-gradient(to right, #3B82F6, #1D4ED8)', padding: '0.75rem 1.5rem', fontWeight: 'bold' }}>
+                  {isSendingReport ? 'Sending...' : 'Send Report 🚀'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} className="header">
         <div>
           <h1 className="title">Super Admin Portal</h1>
           <p style={{ color: 'var(--text-muted)' }}>Manage Organizations, SOS, and System Settings</p>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <button className="btn-primary" onClick={handleLogout} style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#FCA5A5', padding: '0.5rem 1.5rem' }}>
-            Logout
-          </button>
-          <button className="btn-outline" onClick={fetchData} style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn-primary" onClick={handleLogout} style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#FCA5A5', padding: '0.5rem 1rem' }}>
+              Logout
+            </button>
+            <button className="btn-primary" onClick={() => setShowReportModal(true)} style={{ background: '#3b82f6', color: '#fff', padding: '0.5rem 1rem', fontWeight: 'bold', boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}>
+              ✉ Send Report
+            </button>
+          </div>
+          <button className="btn-outline" onClick={fetchData} style={{ fontSize: '0.8rem', padding: '0.4rem 1rem', alignSelf: 'flex-end' }}>
             Refresh Data
           </button>
         </div>
@@ -302,6 +421,9 @@ export default function SuperAdmin() {
         </button>
         <button className={activeTab === 'testing' ? 'tab-active' : 'tab-inactive'} onClick={() => setActiveTab('testing')} style={{ background: 'none', border: 'none', fontSize: '1.1rem', fontWeight: activeTab === 'testing' ? 'bold' : 'normal', color: activeTab === 'testing' ? '#fff' : 'var(--text-muted)', cursor: 'pointer', padding: '0.5rem 1rem', borderBottom: activeTab === 'testing' ? '2px solid #a5b4fc' : '2px solid transparent', whiteSpace: 'nowrap' }}>
           Testing
+        </button>
+        <button className={activeTab === 'analytics' ? 'tab-active' : 'tab-inactive'} onClick={() => setActiveTab('analytics')} style={{ background: 'none', border: 'none', fontSize: '1.1rem', fontWeight: activeTab === 'analytics' ? 'bold' : 'normal', color: activeTab === 'analytics' ? '#fff' : 'var(--text-muted)', cursor: 'pointer', padding: '0.5rem 1rem', borderBottom: activeTab === 'analytics' ? '2px solid #a5b4fc' : '2px solid transparent', whiteSpace: 'nowrap' }}>
+          AI Analytics
         </button>
       </div>
 
@@ -362,6 +484,11 @@ export default function SuperAdmin() {
             </form>
           </div>
         </>
+      )}
+
+      {/* ANALYTICS TAB CONTENT */}
+      {activeTab === 'analytics' && (
+        <AnalyticsPanel zones={globalZones} />
       )}
 
       {activeTab === 'dashboard' && (
