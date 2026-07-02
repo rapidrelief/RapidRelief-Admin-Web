@@ -730,95 +730,137 @@ export default function OrgAdmin() {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }} className="header">
-        <div>
-          <h1 className="title">Organization Portal</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Manage Rescuers, Zones, and Sensors</p>
+      <div className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', position: 'relative', marginBottom: '2rem' }}>
+        {/* Title */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <h1 style={{ 
+            fontSize: '2.5rem', 
+            fontWeight: '900', 
+            margin: 0, 
+            background: 'linear-gradient(135deg, #a5b4fc 0%, #818cf8 50%, #c084fc 100%)', 
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent',
+            textShadow: '0 0 20px rgba(165, 180, 252, 0.3)',
+            letterSpacing: '1px'
+          }}>
+            ORGANIZATION PORTAL
+          </h1>
+          <p style={{ color: '#94a3b8', fontSize: '0.95rem', letterSpacing: '2px', textTransform: 'uppercase', marginTop: '0.2rem' }}>
+            Manage Rescuers, Zones & Sensors
+          </p>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            {/* MESSAGES BUTTON */}
-            <button 
-              onClick={() => setShowMessagesModal(true)}
-              style={{ position: 'relative', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', marginRight: '0.5rem' }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-              {unreadMessagesCount > 0 && (
-                <span style={{ position: 'absolute', top: 0, right: 0, background: '#10b981', color: '#fff', fontSize: '0.65rem', fontWeight: 'bold', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 2px #0f172a' }}>
-                  {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
-                </span>
-              )}
-            </button>
-            {/* NOTIFICATION BELL */}
-            <button 
-              onClick={() => setShowAlertsModal(true)}
-              style={{ position: 'relative', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', marginRight: '0.5rem' }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-              </svg>
-              {reports.filter(r => !r.is_read).length > 0 && (
-                <span style={{ position: 'absolute', top: 0, right: 0, background: '#ef4444', color: '#fff', fontSize: '0.65rem', fontWeight: 'bold', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 2px #0f172a' }}>
-                  {reports.filter(r => !r.is_read).length}
-                </span>
-              )}
-            </button>
 
-            <button className="btn-primary" onClick={handleLogout} style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#FCA5A5' }}>
-              Logout
-            </button>
-            <button className="btn-primary" onClick={() => fetchData()} disabled={isRefreshing} style={{ background: 'rgba(56, 189, 248, 0.2)', color: '#bae6fd', opacity: isRefreshing ? 0.7 : 1, cursor: isRefreshing ? 'wait' : 'pointer' }}>
-              {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
-            </button>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <span style={{ color: '#a5b4fc', fontWeight: 'bold', fontSize: '1.1rem' }}>{orgName}</span>
-            <button onClick={() => setShowSettingsModal(true)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }} title="Organization Settings">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        {/* Right Side - Actions */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginRight: '0.5rem', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <span style={{ color: '#a5b4fc', fontWeight: 'bold', fontSize: '1.05rem' }}>{orgName}</span>
+            <button onClick={() => setShowSettingsModal(true)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0.2rem', transition: 'all 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#c084fc'} onMouseOut={(e) => e.currentTarget.style.color = '#94a3b8'} title="Organization Settings">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </button>
           </div>
+
+          <button 
+            onClick={() => fetchData()} 
+            style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#cbd5e1', padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.3s', opacity: isRefreshing ? 0.7 : 1, cursor: isRefreshing ? 'wait' : 'pointer' }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            {isRefreshing ? 'Syncing...' : 'Sync'}
+          </button>
+
+          <button 
+            onClick={() => setShowMessagesModal(true)}
+            style={{ position: 'relative', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)', color: '#34d399', padding: '0.6rem 1.2rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.3s', fontWeight: 'bold', boxShadow: '0 4px 20px rgba(16, 185, 129, 0.15)' }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)'; e.currentTarget.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.15)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            
+            {unreadMessagesCount > 0 && (
+              <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#10b981', color: '#fff', fontSize: '0.7rem', fontWeight: 'bold', minWidth: '22px', height: '22px', borderRadius: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 3px #0f172a, 0 0 10px #10b981', padding: '0 4px' }}>
+                {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+              </span>
+            )}
+          </button>
+
+          <button 
+            onClick={() => setShowAlertsModal(true)}
+            style={{ position: 'relative', background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%)', border: '1px solid rgba(239, 68, 68, 0.5)', color: '#f87171', padding: '0.6rem 1.2rem', fontWeight: 'bold', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.3s', boxShadow: '0 4px 20px rgba(239, 68, 68, 0.15)' }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)'; e.currentTarget.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(239, 68, 68, 0.15)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            Alerts
+            {reports.filter(r => !r.is_read).length > 0 && (
+              <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#ef4444', color: '#fff', fontSize: '0.7rem', fontWeight: 'bold', minWidth: '22px', height: '22px', borderRadius: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 3px #0f172a, 0 0 10px #ef4444', padding: '0 4px' }}>
+                {reports.filter(r => !r.is_read).length}
+              </span>
+            )}
+          </button>
+
+          <div style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }}></div>
+
+          <button 
+            onClick={handleLogout} 
+            style={{ background: 'rgba(249, 115, 22, 0.1)', color: '#fb923c', padding: '0.6rem', borderRadius: '12px', border: '1px solid rgba(249, 115, 22, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(249, 115, 22, 0.2)'; e.currentTarget.style.color = '#fdba74'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(249, 115, 22, 0.1)'; e.currentTarget.style.color = '#fb923c'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            title="Logout"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          </button>
         </div>
       </div>
 
-      {/* TABS */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem' }}>
-        <button 
-          onClick={() => setActiveTab('dashboard')} 
-          style={{ background: 'none', border: 'none', color: activeTab === 'dashboard' ? '#a5b4fc' : 'var(--text-muted)', fontSize: '1rem', cursor: 'pointer', fontWeight: activeTab === 'dashboard' ? 'bold' : 'normal' }}
-        >
-          Dashboard
-        </button>
-        <button 
-          onClick={() => setActiveTab('rescuers')} 
-          style={{ background: 'none', border: 'none', color: activeTab === 'rescuers' ? '#a5b4fc' : 'var(--text-muted)', fontSize: '1rem', cursor: 'pointer', fontWeight: activeTab === 'rescuers' ? 'bold' : 'normal' }}
-        >
-          Rescuer Personnel
-        </button>
-        <button 
-          onClick={() => setActiveTab('infrastructure')} 
-          style={{ background: 'none', border: 'none', color: activeTab === 'infrastructure' ? '#a5b4fc' : 'var(--text-muted)', fontSize: '1rem', cursor: 'pointer', fontWeight: activeTab === 'infrastructure' ? 'bold' : 'normal' }}
-        >
-          Infrastructure (IoT)
-        </button>
-        <button 
-          onClick={() => setActiveTab('users')} 
-          style={{ background: 'none', border: 'none', color: activeTab === 'users' ? '#a5b4fc' : 'var(--text-muted)', fontSize: '1rem', cursor: 'pointer', fontWeight: activeTab === 'users' ? 'bold' : 'normal' }}
-        >
-          Users
-        </button>
-        <button 
-          onClick={() => setActiveTab('analytics')} 
-          style={{ background: 'none', border: 'none', color: activeTab === 'analytics' ? '#a5b4fc' : 'var(--text-muted)', fontSize: '1rem', cursor: 'pointer', fontWeight: activeTab === 'analytics' ? 'bold' : 'normal' }}
-        >
-          AI Analytics
-        </button>
+      {/* FUTURISTIC TABS */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', padding: '0.5rem', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)', overflowX: 'auto', WebkitOverflowScrolling: 'touch', position: 'relative' }}>
+        {[
+          { id: 'dashboard', label: 'Dashboard', icon: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' },
+          { id: 'rescuers', label: 'Rescuer Personnel', icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z' },
+          { id: 'infrastructure', label: 'Infrastructure (IoT)', icon: 'M12 2v20 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' },
+          { id: 'users', label: 'Users', icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z' },
+          { id: 'analytics', label: 'AI Analytics', icon: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12' }
+        ].map((tab) => (
+          <button 
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)} 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              background: activeTab === tab.id ? 'rgba(99, 102, 241, 0.2)' : 'transparent', 
+              border: activeTab === tab.id ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid transparent', 
+              fontSize: '0.95rem', 
+              fontWeight: activeTab === tab.id ? 'bold' : '500', 
+              color: activeTab === tab.id ? '#c7d2fe' : '#94a3b8', 
+              cursor: 'pointer', 
+              padding: '0.75rem 1.5rem', 
+              borderRadius: '12px',
+              whiteSpace: 'nowrap', 
+              transition: 'all 0.3s',
+              boxShadow: activeTab === tab.id ? '0 0 15px rgba(99, 102, 241, 0.15)' : 'none'
+            }}
+            onMouseOver={(e) => { 
+              if (activeTab !== tab.id) {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                e.currentTarget.style.color = '#cbd5e1';
+              }
+            }}
+            onMouseOut={(e) => { 
+              if (activeTab !== tab.id) {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#94a3b8';
+              }
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: activeTab === tab.id ? 1 : 0.7 }}>
+              <path d={tab.icon}></path>
+            </svg>
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* DASHBOARD TAB */}
@@ -826,35 +868,49 @@ export default function OrgAdmin() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
           {/* Top Row: General Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-            <div className="glass-panel" style={{ textAlign: 'center', padding: '2rem' }}>
-              <h3 style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Total Rescuers</h3>
-              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#a5b4fc' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+            {/* Total Rescuers Card */}
+            <div style={{ background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)', border: '1px solid rgba(99, 102, 241, 0.3)', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', transition: 'transform 0.3s, box-shadow 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 15px 35px rgba(99, 102, 241, 0.2)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)'; }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #818cf8, #c084fc)' }}></div>
+              <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <h3 style={{ color: '#94a3b8', fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem', fontWeight: '600' }}>Active Personnel</h3>
+              <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#fff', textShadow: '0 0 20px rgba(165, 180, 252, 0.5)' }}>
                 {loading ? '-' : rescuers.length}
               </div>
             </div>
-            <div className="glass-panel" style={{ textAlign: 'center', padding: '2rem' }}>
-              <h3 style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Active Zones</h3>
-              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#a5b4fc' }}>
+
+            {/* Active Zones Card */}
+            <div style={{ background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', transition: 'transform 0.3s, box-shadow 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 15px 35px rgba(16, 185, 129, 0.2)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)'; }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #34d399, #10b981)' }}></div>
+              <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+              </div>
+              <h3 style={{ color: '#94a3b8', fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem', fontWeight: '600' }}>Monitored Zones</h3>
+              <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#fff', textShadow: '0 0 20px rgba(16, 185, 129, 0.5)' }}>
                 {loading ? '-' : zones.length}
               </div>
             </div>
           </div>
 
           {/* Second Row: Live Alerts */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
             {/* Active SOS Card */}
-            <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', maxHeight: '300px' }}>
-              <h3 style={{ marginBottom: '1rem', color: '#f87171', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#f87171', boxShadow: '0 0 10px #f87171' }}></span>
+            <div style={{ background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '24px', padding: '1.5rem', display: 'flex', flexDirection: 'column', maxHeight: '400px', position: 'relative', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, #f87171, #ef4444)' }}></div>
+              <h3 style={{ marginBottom: '1.5rem', color: '#f87171', display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                </span>
                 Active SOS Alerts
               </h3>
               <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }} className="custom-scrollbar">
                 {activeSOS.length === 0 ? (
-                  <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', padding: '1rem 0' }}>No active SOS emergencies.</div>
+                  <div style={{ color: '#94a3b8', fontStyle: 'italic', padding: '2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.05)' }}>No active SOS emergencies.</div>
                 ) : (
                   activeSOS.map(sos => (
-                    <div key={sos.id} style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', padding: '1rem', marginBottom: '0.75rem', position: 'relative' }}>
+                    <div key={sos.id} style={{ background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(15, 23, 42, 0.4) 100%)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', position: 'relative', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(15, 23, 42, 0.6) 100%)'; }} onMouseOut={(e) => { e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(15, 23, 42, 0.4) 100%)'; }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                         <strong>{sos.source === 'USER' ? 'User Emergency' : 'Rescuer Broadcast'}</strong>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -902,17 +958,20 @@ export default function OrgAdmin() {
             </div>
 
             {/* Active Floods Card */}
-            <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', maxHeight: '300px' }}>
-              <h3 style={{ marginBottom: '1rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#38bdf8', boxShadow: '0 0 10px #38bdf8' }}></span>
+            <div style={{ background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '24px', padding: '1.5rem', display: 'flex', flexDirection: 'column', maxHeight: '400px', position: 'relative', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'linear-gradient(90deg, #38bdf8, #0284c7)' }}></div>
+              <h3 style={{ marginBottom: '1.5rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12h4l2-9 5 18 2-9h4"></path></svg>
+                </span>
                 Active Flood Zones
               </h3>
               <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }} className="custom-scrollbar">
                 {activeFloods.length === 0 ? (
-                  <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', padding: '1rem 0' }}>No active flood warnings.</div>
+                  <div style={{ color: '#94a3b8', fontStyle: 'italic', padding: '2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.05)' }}>No active flood warnings.</div>
                 ) : (
                   activeFloods.map(flood => (
-                    <div key={flood.zone_id} style={{ background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '8px', padding: '1rem', marginBottom: '0.75rem' }}>
+                    <div key={flood.zone_id} style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(15, 23, 42, 0.4) 100%)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', position: 'relative', transition: 'all 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.5)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0.6) 100%)'; }} onMouseOut={(e) => { e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.2)'; e.currentTarget.style.background = 'linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(15, 23, 42, 0.4) 100%)'; }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                         <strong>{flood.zone_name}</strong>
                         {getSignalPill('flood')}

@@ -729,7 +729,7 @@ export default function SuperAdmin() {
         {/* Right Side - Actions */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <button 
-            onClick={fetchData} 
+            onClick={() => fetchData()} 
             className="btn-futuristic"
             style={{ 
               background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#cbd5e1', 
