@@ -68,9 +68,11 @@ export default function SuperAdmin() {
   const [messageForm, setMessageForm] = useState({ receiver_uid: '', subject: '', content: '' });
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const unreadMessagesCount = messages.filter(m => !m.is_read).length;
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchData = async () => {
     try {
+      setIsRefreshing(true);
       const currentUser = auth.currentUser;
       const [pendingData, approvedData, activeSosData, historyData, usersSnapshot, globalZonesData] = await Promise.all([
         api.getPendingOrgs(),
@@ -95,8 +97,10 @@ export default function SuperAdmin() {
     } catch (err) {
       console.error(err);
       setError('Failed to fetch data.');
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
     }
-    setLoading(false);
   };
 
   const fetchMessages = async () => {
