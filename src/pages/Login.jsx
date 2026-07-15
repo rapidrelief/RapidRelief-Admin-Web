@@ -72,66 +72,108 @@ export default function Login() {
   };
 
   return (
-    <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '420px', padding: '3rem 2.5rem', background: 'rgba(20, 25, 40, 0.8)', border: '1px solid rgba(255, 255, 255, 0.05)', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <img src="/logo.png" alt="RapidRelief Logo" style={{ width: '100px', height: '100px', marginBottom: '1.2rem', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.1)', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }} />
-          <h1 className="title" style={{ fontSize: '2.4rem', marginBottom: '0.2rem', letterSpacing: '-0.5px', background: 'linear-gradient(to right, #ffffff, #a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>RapidRelief</h1>
-          <p style={{ color: '#94a3b8', fontSize: '1rem', fontWeight: '400', letterSpacing: '1px', textTransform: 'uppercase' }}>Admin Portal</p>
-        </div>
-        
-        {error && (
-          <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '1rem', borderRadius: '12px', color: '#fca5a5', marginBottom: '1.5rem', fontSize: '0.9rem', textAlign: 'center', wordBreak: 'break-word' }}>
-            {error}
-          </div>
-        )}
+      <div className="login-animated-bg" style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '100vh',
+        position: 'relative'
+      }}>
+        {/* Back to Home Button */}
+        <Link to="/" style={{
+          position: 'absolute',
+          top: '2rem',
+          left: '2rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          color: '#00F0FF',
+          textDecoration: 'none',
+          fontSize: '1.1rem',
+          fontWeight: '600',
+          background: 'rgba(0, 240, 255, 0.1)',
+          padding: '0.8rem 1.5rem',
+          borderRadius: '50px',
+          border: '1px solid rgba(0, 240, 255, 0.3)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 0 20px rgba(0, 240, 255, 0.2)',
+          transition: 'all 0.3s ease'
+        }}>
+          &larr; Back to Home
+        </Link>
 
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label className="label" style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>Email Address</label>
-            <input 
-              type="email" 
-              className="input-field" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-              placeholder="admin@organization.org"
-              style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
-            />
+        <div className="glass-panel" style={{ 
+          width: '100%', 
+          maxWidth: '420px', 
+          padding: '3rem 2.5rem', 
+          background: 'rgba(255, 255, 255, 0.03)', 
+          backdropFilter: 'blur(40px)',
+          WebkitBackdropFilter: 'blur(40px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)', 
+          borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: '24px',
+          boxShadow: '0 25px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(255, 255, 255, 0.02)',
+          animation: 'cardPulse 3s infinite alternate'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <img src="/logo.png" alt="RapidRelief Logo" style={{ width: '100px', height: '100px', marginBottom: '1.2rem', borderRadius: '50%', objectFit: 'cover', border: '2px solid #FF0055', boxShadow: '0 0 25px rgba(255, 0, 85, 0.5)' }} />
+            <h1 className="title" style={{ fontSize: '2.4rem', marginBottom: '0.2rem', letterSpacing: '-0.5px', color: 'white', textShadow: '0 0 15px rgba(0, 240, 255, 0.5)' }}>Rapid<span style={{ color: '#00F0FF' }}>Relief</span></h1>
+            <p style={{ color: '#CBD5E1', fontSize: '1rem', fontWeight: '500', letterSpacing: '2px', textTransform: 'uppercase' }}>Admin Portal</p>
           </div>
-          <div style={{ marginBottom: '2rem', position: 'relative' }}>
-            <label className="label" style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>Password</label>
-            <input 
-              type={showPassword ? "text" : "password"}
-              className="input-field"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-              placeholder="••••••••"
-              style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', paddingRight: '40px' }}
-            />
-            <button 
-              type="button" 
-              onClick={() => setShowPassword(!showPassword)}
-              style={{ position: 'absolute', right: '10px', top: '38px', background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer', fontSize: '1.2rem' }}
-            >
-              {showPassword ? '🙈' : '👁️'}
+          
+          {error && (
+            <div style={{ background: 'rgba(255, 0, 85, 0.15)', border: '1px solid rgba(255, 0, 85, 0.5)', padding: '1rem', borderRadius: '12px', color: '#FF0055', marginBottom: '1.5rem', fontSize: '0.9rem', textAlign: 'center', wordBreak: 'break-word', boxShadow: '0 0 15px rgba(255, 0, 85, 0.2)' }}>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin}>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label className="label" style={{ color: '#00F0FF', fontSize: '0.9rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>Email Address</label>
+              <input 
+                type="email" 
+                className="input-field" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required 
+                placeholder="admin@organization.org"
+                style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(0, 240, 255, 0.3)', color: '#fff', borderRadius: '12px', padding: '1rem', width: '100%', boxSizing: 'border-box', marginTop: '0.5rem', transition: 'all 0.3s ease' }}
+              />
+            </div>
+            <div style={{ marginBottom: '2.5rem', position: 'relative' }}>
+              <label className="label" style={{ color: '#00F0FF', fontSize: '0.9rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>Password</label>
+              <input 
+                type={showPassword ? "text" : "password"}
+                className="input-field"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+                placeholder="••••••••"
+                style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(0, 240, 255, 0.3)', color: '#fff', borderRadius: '12px', padding: '1rem', width: '100%', boxSizing: 'border-box', marginTop: '0.5rem', paddingRight: '40px', transition: 'all 0.3s ease' }}
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', right: '15px', top: '42px', background: 'none', border: 'none', color: '#00F0FF', cursor: 'pointer', fontSize: '1.2rem', filter: 'drop-shadow(0 0 5px rgba(0,240,255,0.5))' }}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
+            <button type="submit" className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '12px', border: 'none', color: 'white', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', cursor: 'pointer' }} disabled={loading}>
+              {loading ? 'Authenticating...' : 'Secure Login'}
             </button>
-          </div>
-          <button type="submit" className="btn-primary" style={{ width: '100%', padding: '1rem', fontSize: '1rem', background: 'linear-gradient(to right, #4f46e5, #6366f1)' }} disabled={loading}>
-            {loading ? 'Authenticating...' : 'Secure Login'}
-          </button>
-        </form>
+          </form>
 
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
-            New organization?{' '}
-            <Link to="/register-org" style={{ color: '#a5b4fc', textDecoration: 'none', fontWeight: '500' }}>
-              Apply here
-            </Link>
-          </p>
+          <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
+            <p style={{ color: '#CBD5E1', fontSize: '0.95rem' }}>
+              New organization?{' '}
+              <Link to="/register-org" style={{ color: '#FF0055', textDecoration: 'none', fontWeight: '700', textShadow: '0 0 10px rgba(255, 0, 85, 0.5)' }}>
+                Apply here
+              </Link>
+            </p>
+          </div>
         </div>
-      </div>
     </div>
   );
 }
