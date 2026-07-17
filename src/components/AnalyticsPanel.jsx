@@ -34,7 +34,16 @@ export default function AnalyticsPanel({ zones }) {
     setLoadingStep(1); // Start analyzing phase
     setError(null);
     try {
-      const data = await api.getPrediction(zoneId, 14); // Always fetch 14
+      // Find the selected zone's coordinates
+      const zone = zones.find(z => z.id.toString() === zoneId.toString());
+      if (!zone) throw new Error("Selected zone not found");
+
+      // 1. Fetch weather directly from the browser (bypassing Render shared IP limit)
+      const weatherData = await api.fetchWeather(zone.lat, zone.lng, 14);
+
+      // 2. Send weather data to backend for AI processing
+      const data = await api.getPrediction(zoneId, weatherData);
+      
       setForecastData(data.forecast || []);
       
       // Artificial delay for "Polishing" phase

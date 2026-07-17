@@ -226,9 +226,20 @@ export const api = {
     return res.json();
   },
 
-  async getPrediction(zoneId, days = 7) {
-    const res = await fetch(`${API_BASE_URL}/prediction/zone/${zoneId}?days=${days}`);
-    if (!res.ok) throw new Error('Failed to fetch AI predictions');
+  async fetchWeather(lat, lng, days = 14) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum,temperature_2m_max&timezone=auto&forecast_days=${days}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch weather data from Open-Meteo');
+    return res.json();
+  },
+
+  async getPrediction(zoneId, weatherData) {
+    const res = await fetch(`${API_BASE_URL}/prediction/zone/${zoneId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ daily: weatherData.daily || {} })
+    });
+    if (!res.ok) throw new Error('Failed to fetch AI predictions from backend');
     return res.json();
   },
 
