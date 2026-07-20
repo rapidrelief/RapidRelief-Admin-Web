@@ -30,10 +30,10 @@ const FAQItem = ({ question, answer }) => {
 
 export default function About() {
   const team = [
-    { name: "M. AFFAN BAIG", role: "Backend, Rescuer App Development, Ai Training & Hardware Integration" },
     { name: "HAMMAD HASHMI (Team Lead)", role: "Documentation, Web Architecture & Ai data gathering and Training" },
-    { name: "SUNDAS FARMAN", role: "User App Development & Documentation" },
-    { name: "PARAS BAI", role: "Reasearch,Frontend Developer & Ui Ux designer" }
+    { name: "M. AFFAN BAIG", role: "Backend, Rescuer App Development, Ai Training & Hardware Integration" },
+    { name: "PARAS BAI", role: "Reasearch,Frontend Developer & Ui Ux designer" },
+    { name: "SUNDAS FARMAN", role: "User App Development & Documentation" }
   ];
 
   const architectureSteps = [
